@@ -77,6 +77,12 @@ class ActivitiEngineConfiguration {
         processEngineConfiguration.setAsyncExecutorEnabled(true);
         processEngineConfiguration.setAsyncExecutorActivate(false);
         processEngineConfiguration.setHistoryLevel(HistoryLevel.FULL);
+        processEngineConfiguration.setMailServerHost("smtp.gmail.com");
+        processEngineConfiguration.setMailServerPort(465);
+        processEngineConfiguration.setMailServerUsername("vaibhavsinh@gmail.com");
+        processEngineConfiguration.setMailServerPassword("");
+        processEngineConfiguration.setMailServerUseSSL(true);
+        processEngineConfiguration.setMailServerUseTLS(true);
         return processEngineConfiguration;
     }
 
