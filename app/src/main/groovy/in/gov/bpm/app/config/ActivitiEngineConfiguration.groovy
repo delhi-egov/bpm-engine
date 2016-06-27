@@ -14,8 +14,13 @@ import org.activiti.engine.impl.cfg.ProcessEngineConfigurationImpl
 import org.activiti.engine.impl.history.HistoryLevel
 import org.activiti.spring.ProcessEngineFactoryBean
 import org.activiti.spring.SpringProcessEngineConfiguration
+import org.springframework.beans.factory.annotation.Value
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
+import org.springframework.context.annotation.DependsOn
+import org.springframework.context.annotation.PropertySource
+import org.springframework.context.annotation.PropertySources
+import org.springframework.context.support.PropertySourcesPlaceholderConfigurer
 import org.springframework.jdbc.datasource.DataSourceTransactionManager
 import org.springframework.transaction.PlatformTransactionManager
 import org.springframework.jdbc.datasource.SimpleDriverDataSource
@@ -27,7 +32,39 @@ import javax.sql.DataSource
  * Created by user-1 on 24/6/16.
  */
 @Configuration
+@PropertySources(@PropertySource("file:/egov.properties"))
 class ActivitiEngineConfiguration {
+
+    @Value('${jdbc.url}')
+    String jdbcUrl;
+
+    @Value('${jdbc.username}')
+    String jdbcUsername;
+
+    @Value('${jdbc.password}')
+    String jdbcPassword;
+
+    @Value('${email.enable}')
+    Boolean emailEnable;
+
+    @Value('${email.host}')
+    String emailHost;
+
+    @Value('${email.port}')
+    Integer emailPort;
+
+    @Value('${email.username}')
+    String emailUsername;
+
+    @Value('${email.password}')
+    String emailPassword;
+
+    @Value('${email.useSSL}')
+    Boolean emailUseSSL;
+
+    @Value('${email.useTLS}')
+    Boolean emailUseTLS;
+
 
     @Bean
     public DataSource dataSource() {
@@ -35,9 +72,9 @@ class ActivitiEngineConfiguration {
         ds.setDriverClass(Driver);
 
         // Connection settings
-        ds.setUrl("jdbc:mysql://localhost:3306/activiti");
-        ds.setUsername("root");
-        ds.setPassword("password")
+        ds.setUrl(jdbcUrl);
+        ds.setUsername(jdbcUsername);
+        ds.setPassword(jdbcPassword)
 
         return ds;
     }
@@ -49,6 +86,11 @@ class ActivitiEngineConfiguration {
         return transactionManager;
     }
 
+    @Bean
+    public static PropertySourcesPlaceholderConfigurer propertyConfig() {
+        return new PropertySourcesPlaceholderConfigurer();
+    }
+
     @Bean(name="processEngineFactoryBean")
     public ProcessEngineFactoryBean processEngineFactoryBean() {
         ProcessEngineFactoryBean factoryBean = new ProcessEngineFactoryBean();
@@ -58,8 +100,6 @@ class ActivitiEngineConfiguration {
 
     @Bean(name="processEngine")
     public ProcessEngine processEngine() {
-        // Safe to call the getObject() on the @Bean annotated processEngineFactoryBean(), will be
-        // the fully initialized object instanced from the factory and will NOT be created more than once
         try {
             return processEngineFactoryBean().getObject();
         } catch (Exception e) {
@@ -77,12 +117,14 @@ class ActivitiEngineConfiguration {
         processEngineConfiguration.setAsyncExecutorEnabled(true);
         processEngineConfiguration.setAsyncExecutorActivate(false);
         processEngineConfiguration.setHistoryLevel(HistoryLevel.FULL);
-        processEngineConfiguration.setMailServerHost("smtp.gmail.com");
-        processEngineConfiguration.setMailServerPort(465);
-        processEngineConfiguration.setMailServerUsername("vaibhavsinh@gmail.com");
-        processEngineConfiguration.setMailServerPassword("");
-        processEngineConfiguration.setMailServerUseSSL(true);
-        processEngineConfiguration.setMailServerUseTLS(true);
+        if(emailEnable) {
+            processEngineConfiguration.setMailServerHost(emailHost);
+            processEngineConfiguration.setMailServerPort(emailPort);
+            processEngineConfiguration.setMailServerUsername(emailUsername);
+            processEngineConfiguration.setMailServerPassword(emailPassword);
+            processEngineConfiguration.setMailServerUseSSL(emailUseSSL);
+            processEngineConfiguration.setMailServerUseTLS(emailUseTLS);
+        }
         return processEngineConfiguration;
     }
 

@@ -6,8 +6,6 @@ import org.activiti.engine.RuntimeService
 import org.activiti.engine.TaskService
 import org.activiti.engine.runtime.ProcessInstance
 import org.activiti.engine.task.Task
-import org.activiti.engine.test.ActivitiTestCase
-import org.activiti.engine.test.Deployment
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.springframework.beans.factory.annotation.Autowired
