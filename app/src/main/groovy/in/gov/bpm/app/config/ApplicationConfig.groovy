@@ -7,6 +7,6 @@ import org.springframework.context.annotation.Configuration
  * Created by user-1 on 24/6/16.
  */
 @Configuration
-@ComponentScan(basePackages = ["in.gov.bpm.app.config"])
+@ComponentScan(basePackages = ["in.gov.bpm.app.config", "in.gov.bpm.app.impl"])
 class ApplicationConfig {
 }

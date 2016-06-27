@@ -1,6 +1,7 @@
 package in.gov.bpm.app.config
 
 import com.mysql.jdbc.Driver
+import in.gov.bpm.app.impl.RemoteNotifierEventListener
 import org.activiti.engine.FormService
 import org.activiti.engine.HistoryService
 import org.activiti.engine.IdentityService
@@ -24,6 +25,7 @@ import org.springframework.context.support.PropertySourcesPlaceholderConfigurer
 import org.springframework.jdbc.datasource.DataSourceTransactionManager
 import org.springframework.transaction.PlatformTransactionManager
 import org.springframework.jdbc.datasource.SimpleDriverDataSource
+import org.springframework.web.client.RestTemplate
 
 import javax.annotation.PostConstruct;
 import javax.sql.DataSource
@@ -64,6 +66,18 @@ class ActivitiEngineConfiguration {
 
     @Value('${email.useTLS}')
     Boolean emailUseTLS;
+
+    @Value('${notification.enable}')
+    Boolean notificationEnable;
+
+    @Value('${notification.url}')
+    String notificationUrl;
+
+    @Value('${notification.username}')
+    String notificationUsername;
+
+    @Value('${notification.password}')
+    String notificationPassword;
 
 
     @Bean
@@ -125,7 +139,21 @@ class ActivitiEngineConfiguration {
             processEngineConfiguration.setMailServerUseSSL(emailUseSSL);
             processEngineConfiguration.setMailServerUseTLS(emailUseTLS);
         }
+        if(notificationEnable) {
+            processEngineConfiguration.setEventListeners([remoteNotifierEventListener()]);
+        }
         return processEngineConfiguration;
+    }
+
+    @Bean
+    public RemoteNotifierEventListener remoteNotifierEventListener() {
+        return new RemoteNotifierEventListener(url: notificationUrl, username: notificationUsername, password: notificationPassword);
+    }
+
+    @Bean
+    public RestTemplate restTemplate() {
+        RestTemplate rest = new RestTemplate();
+        return rest;
     }
 
     @Bean
