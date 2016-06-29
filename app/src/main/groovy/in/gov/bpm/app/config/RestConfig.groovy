@@ -1,5 +1,6 @@
 package in.gov.bpm.app.config
 
+import in.gov.bpm.app.impl.MapRestVariableConverter
 import org.activiti.rest.common.application.ContentTypeResolver
 import org.activiti.rest.common.application.DefaultContentTypeResolver
 import org.activiti.rest.service.api.RestResponseFactory
@@ -16,6 +17,7 @@ class RestConfig {
     @Bean()
     public RestResponseFactory restResponseFactory() {
         RestResponseFactory restResponseFactory = new RestResponseFactory();
+        restResponseFactory.getVariableConverters().add(mapRestVariableConverter());
         return restResponseFactory;
     }
 
@@ -23,6 +25,11 @@ class RestConfig {
     public ContentTypeResolver contentTypeResolver() {
         ContentTypeResolver resolver = new DefaultContentTypeResolver();
         return resolver;
+    }
+
+    @Bean()
+    public MapRestVariableConverter mapRestVariableConverter() {
+        return new MapRestVariableConverter();
     }
 }
 

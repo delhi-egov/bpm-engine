@@ -47,8 +47,8 @@ class RemoteNotifierEventListener implements ActivitiEventListener {
     }
 
     @PostConstruct
-    public void buildBasicRequestHeader(String key, String password) {
-        String plainCreds = key + ":" + password;
+    public void buildBasicRequestHeader() {
+        String plainCreds = username + ":" + password;
         byte[] plainCredsBytes = plainCreds.getBytes();
         byte[] base64CredsBytes = Base64.encodeBase64(plainCredsBytes);
         String base64Creds = new String(base64CredsBytes);
