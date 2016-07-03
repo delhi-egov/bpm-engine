@@ -17,8 +17,13 @@ The BPM engine would be used to execute all the processes deployed on it.
 2. Unzip the activiti-explorer.war file using ""
 3. Go to WEB-INF/classes/ within the activiti-rest directory
 4. Edit db.properties to point to your MySQL server and database
-5. Edit engine.properties and make all properties 'false'
+5. Edit engine.properties and make all properties except 'create.demo.users' as 'false'
 6. Copy the entire activiti-rest directory to webapps directory of your Tomcat installation (Generally found at /var/lib/tomcat7/webapps)
+7. Start tomcat7 service, if not already running, by issuing "sudo service tomcat7 start" command.
+8. Go to localhost:8080/activiti-explorer and login using kermit/kermit
+9. Go to 'Manage' -> 'Groups' and create two new groups with id "alc" and "ro" respectively
+10. Go to 'Manage' -> 'Users' and create two new users 'vijay' and 'vaibhav'. Add vijay to group alc and vaibhav to group ro.
+11. Go to 'Manage' -> 'Deployments' -> 'Upload New' and upload the file 'app/src/test/resources/labor.bpmn20.xml' from the cloned repository.
 
 # bpm-engine setup
 
