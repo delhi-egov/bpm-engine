@@ -100,5 +100,9 @@
         </dependency>
     </dependencies>
 
+    <build>
+        <finalName>bpm-engine</finalName>
+    </build>
+
 
 </project>
