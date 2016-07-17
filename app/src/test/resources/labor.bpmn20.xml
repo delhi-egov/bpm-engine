@@ -2,14 +2,14 @@
 <definitions xmlns="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:activiti="http://activiti.org/bpmn" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:omgdc="http://www.omg.org/spec/DD/20100524/DC" xmlns:omgdi="http://www.omg.org/spec/DD/20100524/DI" typeLanguage="http://www.w3.org/2001/XMLSchema" expressionLanguage="http://www.w3.org/1999/XPath" targetNamespace="http://www.activiti.org/processdef">
   <process id="process" isExecutable="true">
     <startEvent id="start" name="Citizen  Applies" activiti:initiator="initiator"></startEvent>
-    <userTask id="scrutiny" name="Scrutiny of Documents by ALC" activiti:candidateGroups="ALC,marketing"></userTask>
+    <userTask id="scrutiny" name="Scrutiny of Documents by ALC" activiti:candidateGroups="alc"></userTask>
     <sequenceFlow id="sid-9E8EBCD6-5645-4291-AB39-682C950C7E6B" sourceRef="start" targetRef="scrutiny"></sequenceFlow>
     <exclusiveGateway id="sid-CF5837BA-090C-4002-927F-526F351199AF" name="Any discrepancy?"></exclusiveGateway>
     <sequenceFlow id="sid-4511556A-B6E4-4ACC-9B79-F5DEAD7DFE6E" sourceRef="scrutiny" targetRef="sid-CF5837BA-090C-4002-927F-526F351199AF"></sequenceFlow>
     <serviceTask id="sid-84F46DB0-BC8B-4F0E-8F0A-7CECD55E2585" name="Email to Citizen about discrepancies" activiti:type="mail">
       <extensionElements>
         <activiti:field name="to">
-          <activiti:string><![CDATA[vaibhavsinh@gmail.com]]></activiti:string>
+          <activiti:expression><![CDATA[${form.email}]]></activiti:expression>
         </activiti:field>
         <activiti:field name="subject">
           <activiti:string><![CDATA[More documents needed]]></activiti:string>
@@ -19,21 +19,22 @@
         </activiti:field>
       </extensionElements>
     </serviceTask>
-    <userTask id="sid-05EE1A7C-0339-4D17-A46E-40E2235A5727" name="Apply with required documents" activiti:assignee="${initiator}"></userTask>
-    <sequenceFlow id="sid-3B864676-F6A3-4CF5-AC28-10B52E7BB2AF" sourceRef="sid-84F46DB0-BC8B-4F0E-8F0A-7CECD55E2585" targetRef="sid-05EE1A7C-0339-4D17-A46E-40E2235A5727"></sequenceFlow>
-    <sequenceFlow id="sid-98D71CC8-8DC8-4EC9-A0F1-E15114820D30" sourceRef="sid-05EE1A7C-0339-4D17-A46E-40E2235A5727" targetRef="scrutiny"></sequenceFlow>
-    <userTask id="sid-1CE291C9-F884-42AF-86F2-4E9E8AE61EEA" name="Report submission by ALC" activiti:candidateGroups="ALC,marketing"></userTask>
-    <sequenceFlow id="sid-66396E0C-11C4-4A21-9667-BFBBA42BEE29" name="No" sourceRef="sid-CF5837BA-090C-4002-927F-526F351199AF" targetRef="sid-1CE291C9-F884-42AF-86F2-4E9E8AE61EEA">
-      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${hasDiscrepancy == false}]]></conditionExpression>
-    </sequenceFlow>
-    <userTask id="sid-7653E245-D13C-4B2D-8475-CFD1AE424A27" name="Decision on application by RO" activiti:candidateGroups="RO,sales"></userTask>
-    <sequenceFlow id="sid-4E4BBF7E-8194-473D-9155-AFB32AE46938" sourceRef="sid-1CE291C9-F884-42AF-86F2-4E9E8AE61EEA" targetRef="sid-7653E245-D13C-4B2D-8475-CFD1AE424A27"></sequenceFlow>
+    <userTask id="reapply" name="Apply with required documents" activiti:assignee="${initiator}"></userTask>
+    <sequenceFlow id="sid-3B864676-F6A3-4CF5-AC28-10B52E7BB2AF" sourceRef="sid-84F46DB0-BC8B-4F0E-8F0A-7CECD55E2585" targetRef="reapply"></sequenceFlow>
+    <sequenceFlow id="sid-98D71CC8-8DC8-4EC9-A0F1-E15114820D30" sourceRef="reapply" targetRef="scrutiny"></sequenceFlow>
+    <userTask id="report_submission" name="Report submission by ALC" activiti:candidateGroups="alc">
+      <documentation>ALC needs to write a report and submit it</documentation>
+    </userTask>
+    <userTask id="decision" name="Decision on application by RO" activiti:candidateGroups="ro">
+      <documentation>RO needs to provide the final decision</documentation>
+    </userTask>
+    <sequenceFlow id="sid-4E4BBF7E-8194-473D-9155-AFB32AE46938" sourceRef="report_submission" targetRef="decision"></sequenceFlow>
     <exclusiveGateway id="sid-54A0517F-F2D3-4402-ABF5-AA978A72673D" name="Accepted?"></exclusiveGateway>
-    <sequenceFlow id="sid-815842DC-FF5D-4318-9541-5C7EC83998A6" sourceRef="sid-7653E245-D13C-4B2D-8475-CFD1AE424A27" targetRef="sid-54A0517F-F2D3-4402-ABF5-AA978A72673D"></sequenceFlow>
+    <sequenceFlow id="sid-815842DC-FF5D-4318-9541-5C7EC83998A6" sourceRef="decision" targetRef="sid-54A0517F-F2D3-4402-ABF5-AA978A72673D"></sequenceFlow>
     <serviceTask id="sid-6B29AFEC-E449-4177-9CB9-B4F0BDCF6BE7" name="Email to Citizen about reason of rejection" activiti:type="mail">
       <extensionElements>
         <activiti:field name="to">
-          <activiti:string><![CDATA[vaibhavsinh@gmail.com]]></activiti:string>
+          <activiti:expression><![CDATA[${form.email}]]></activiti:expression>
         </activiti:field>
         <activiti:field name="subject">
           <activiti:string><![CDATA[Your application is rejected]]></activiti:string>
@@ -48,7 +49,7 @@
     <serviceTask id="sid-E290A20F-FAA0-4248-80F3-3D36C185B65C" name="Email to Citizen about acceptance of application" activiti:type="mail">
       <extensionElements>
         <activiti:field name="to">
-          <activiti:string><![CDATA[vaibhavsinh@gmail.com]]></activiti:string>
+          <activiti:expression><![CDATA[${form.email}]]></activiti:expression>
         </activiti:field>
         <activiti:field name="subject">
           <activiti:string><![CDATA[Your application is accepted]]></activiti:string>
@@ -58,15 +59,18 @@
         </activiti:field>
       </extensionElements>
     </serviceTask>
-    <manualTask id="sid-E340263B-4B98-40B6-9D62-30FDC73FDCE2" name="Generate, Sign and Mail certificate"></manualTask>
-    <sequenceFlow id="sid-5C187FEB-7D51-4BB4-B2EE-E206F0BE18A9" sourceRef="sid-E290A20F-FAA0-4248-80F3-3D36C185B65C" targetRef="sid-E340263B-4B98-40B6-9D62-30FDC73FDCE2"></sequenceFlow>
+    <manualTask id="mail_certificate" name="Generate, Sign and Mail certificate"></manualTask>
+    <sequenceFlow id="sid-5C187FEB-7D51-4BB4-B2EE-E206F0BE18A9" sourceRef="sid-E290A20F-FAA0-4248-80F3-3D36C185B65C" targetRef="mail_certificate"></sequenceFlow>
     <endEvent id="sid-08BE67E9-6033-4609-A8F3-57F62EE023B7" name="End"></endEvent>
-    <sequenceFlow id="sid-63EF6BBC-DA4E-4DCD-845A-2BF419A4C81A" sourceRef="sid-E340263B-4B98-40B6-9D62-30FDC73FDCE2" targetRef="sid-08BE67E9-6033-4609-A8F3-57F62EE023B7"></sequenceFlow>
+    <sequenceFlow id="sid-63EF6BBC-DA4E-4DCD-845A-2BF419A4C81A" sourceRef="mail_certificate" targetRef="sid-08BE67E9-6033-4609-A8F3-57F62EE023B7"></sequenceFlow>
     <sequenceFlow id="sid-642EB097-240C-4844-8451-542D7F554922" name="Yes" sourceRef="sid-54A0517F-F2D3-4402-ABF5-AA978A72673D" targetRef="sid-E290A20F-FAA0-4248-80F3-3D36C185B65C">
       <conditionExpression xsi:type="tFormalExpression"><![CDATA[${accepted == true}]]></conditionExpression>
     </sequenceFlow>
     <sequenceFlow id="sid-A5CCB65A-9077-4890-864A-263EB4AAADCF" name="No" sourceRef="sid-54A0517F-F2D3-4402-ABF5-AA978A72673D" targetRef="sid-6B29AFEC-E449-4177-9CB9-B4F0BDCF6BE7">
       <conditionExpression xsi:type="tFormalExpression"><![CDATA[${accepted == false}]]></conditionExpression>
+    </sequenceFlow>
+    <sequenceFlow id="sid-66396E0C-11C4-4A21-9667-BFBBA42BEE29" name="No" sourceRef="sid-CF5837BA-090C-4002-927F-526F351199AF" targetRef="report_submission">
+      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${hasDiscrepancy == false}]]></conditionExpression>
     </sequenceFlow>
     <sequenceFlow id="sid-221C312F-3594-4B8E-B019-F98A8E81B926" sourceRef="sid-CF5837BA-090C-4002-927F-526F351199AF" targetRef="sid-84F46DB0-BC8B-4F0E-8F0A-7CECD55E2585">
       <conditionExpression xsi:type="tFormalExpression"><![CDATA[${hasDiscrepancy == true}]]></conditionExpression>
@@ -86,13 +90,13 @@
       <bpmndi:BPMNShape bpmnElement="sid-84F46DB0-BC8B-4F0E-8F0A-7CECD55E2585" id="BPMNShape_sid-84F46DB0-BC8B-4F0E-8F0A-7CECD55E2585">
         <omgdc:Bounds height="80.0" width="100.0" x="256.75" y="375.0"></omgdc:Bounds>
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape bpmnElement="sid-05EE1A7C-0339-4D17-A46E-40E2235A5727" id="BPMNShape_sid-05EE1A7C-0339-4D17-A46E-40E2235A5727">
+      <bpmndi:BPMNShape bpmnElement="reapply" id="BPMNShape_reapply">
         <omgdc:Bounds height="80.0" width="100.0" x="256.75" y="220.0"></omgdc:Bounds>
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape bpmnElement="sid-1CE291C9-F884-42AF-86F2-4E9E8AE61EEA" id="BPMNShape_sid-1CE291C9-F884-42AF-86F2-4E9E8AE61EEA">
+      <bpmndi:BPMNShape bpmnElement="report_submission" id="BPMNShape_report_submission">
         <omgdc:Bounds height="80.0" width="100.0" x="590.75" y="88.0"></omgdc:Bounds>
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape bpmnElement="sid-7653E245-D13C-4B2D-8475-CFD1AE424A27" id="BPMNShape_sid-7653E245-D13C-4B2D-8475-CFD1AE424A27">
+      <bpmndi:BPMNShape bpmnElement="decision" id="BPMNShape_decision">
         <omgdc:Bounds height="80.0" width="100.0" x="780.0" y="92.0"></omgdc:Bounds>
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape bpmnElement="sid-54A0517F-F2D3-4402-ABF5-AA978A72673D" id="BPMNShape_sid-54A0517F-F2D3-4402-ABF5-AA978A72673D">
@@ -107,7 +111,7 @@
       <bpmndi:BPMNShape bpmnElement="sid-E290A20F-FAA0-4248-80F3-3D36C185B65C" id="BPMNShape_sid-E290A20F-FAA0-4248-80F3-3D36C185B65C">
         <omgdc:Bounds height="80.0" width="100.0" x="1081.75" y="92.0"></omgdc:Bounds>
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape bpmnElement="sid-E340263B-4B98-40B6-9D62-30FDC73FDCE2" id="BPMNShape_sid-E340263B-4B98-40B6-9D62-30FDC73FDCE2">
+      <bpmndi:BPMNShape bpmnElement="mail_certificate" id="BPMNShape_mail_certificate">
         <omgdc:Bounds height="80.0" width="100.0" x="1251.1452806105924" y="92.0"></omgdc:Bounds>
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape bpmnElement="sid-08BE67E9-6033-4609-A8F3-57F62EE023B7" id="BPMNShape_sid-08BE67E9-6033-4609-A8F3-57F62EE023B7">
@@ -137,6 +141,10 @@
         <omgdi:waypoint x="965.0" y="283.0"></omgdi:waypoint>
         <omgdi:waypoint x="965.0" y="330.0"></omgdi:waypoint>
       </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="sid-66396E0C-11C4-4A21-9667-BFBBA42BEE29" id="BPMNEdge_sid-66396E0C-11C4-4A21-9667-BFBBA42BEE29">
+        <omgdi:waypoint x="474.5514208389716" y="128.44857916102842"></omgdi:waypoint>
+        <omgdi:waypoint x="590.75" y="128.1349527665317"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge bpmnElement="sid-63EF6BBC-DA4E-4DCD-845A-2BF419A4C81A" id="BPMNEdge_sid-63EF6BBC-DA4E-4DCD-845A-2BF419A4C81A">
         <omgdi:waypoint x="1351.1452806105924" y="132.0"></omgdi:waypoint>
         <omgdi:waypoint x="1405.3774408035201" y="132.0"></omgdi:waypoint>
@@ -144,10 +152,6 @@
       <bpmndi:BPMNEdge bpmnElement="sid-4E4BBF7E-8194-473D-9155-AFB32AE46938" id="BPMNEdge_sid-4E4BBF7E-8194-473D-9155-AFB32AE46938">
         <omgdi:waypoint x="690.75" y="129.05680317040952"></omgdi:waypoint>
         <omgdi:waypoint x="780.0" y="130.94319682959048"></omgdi:waypoint>
-      </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge bpmnElement="sid-66396E0C-11C4-4A21-9667-BFBBA42BEE29" id="BPMNEdge_sid-66396E0C-11C4-4A21-9667-BFBBA42BEE29">
-        <omgdi:waypoint x="474.5514208389716" y="128.44857916102842"></omgdi:waypoint>
-        <omgdi:waypoint x="590.75" y="128.1349527665317"></omgdi:waypoint>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge bpmnElement="sid-A5CCB65A-9077-4890-864A-263EB4AAADCF" id="BPMNEdge_sid-A5CCB65A-9077-4890-864A-263EB4AAADCF">
         <omgdi:waypoint x="965.4136363636363" y="151.58636363636364"></omgdi:waypoint>
