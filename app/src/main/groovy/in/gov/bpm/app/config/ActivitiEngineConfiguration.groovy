@@ -145,7 +145,6 @@ class ActivitiEngineConfiguration {
         return processEngineConfiguration;
     }
 
-    @Bean
     public RemoteNotifierEventListener remoteNotifierEventListener() {
         return new RemoteNotifierEventListener(url: notificationUrl, username: notificationUsername, password: notificationPassword);
     }

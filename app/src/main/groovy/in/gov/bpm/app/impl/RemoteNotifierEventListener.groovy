@@ -4,6 +4,7 @@ import org.activiti.engine.RuntimeService
 import org.activiti.engine.delegate.event.ActivitiEntityEvent
 import org.activiti.engine.delegate.event.ActivitiEvent
 import org.activiti.engine.delegate.event.ActivitiEventListener
+import org.activiti.engine.delegate.event.ActivitiEventType
 import org.activiti.engine.runtime.ProcessInstance
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.http.HttpEntity
@@ -37,8 +38,10 @@ class RemoteNotifierEventListener implements ActivitiEventListener {
 
     @Override
     void onEvent(ActivitiEvent event) {
-        HttpEntity httpEntity = new HttpEntity<>(buildEvent(event), headers);
-        restTemplate.exchange(url, HttpMethod.POST, httpEntity, String.class);
+        if(event.getType() == ActivitiEventType.PROCESS_COMPLETED) {
+            HttpEntity httpEntity = new HttpEntity<>(buildEvent(event), headers);
+            restTemplate.exchange(url, HttpMethod.POST, httpEntity, String.class);
+        }
     }
 
     @Override
