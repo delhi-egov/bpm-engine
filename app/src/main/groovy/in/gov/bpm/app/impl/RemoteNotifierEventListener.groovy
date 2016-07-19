@@ -36,6 +36,16 @@ class RemoteNotifierEventListener implements ActivitiEventListener {
 
     HttpHeaders headers;
 
+    RemoteNotifierEventListener(String url, String username, String password, RestTemplate restTemplate, RuntimeService runtimeService) {
+        this.url = url
+        this.username = username
+        this.password = password
+        this.runtimeService = runtimeService
+        this.restTemplate = restTemplate
+
+        buildBasicRequestHeader();
+    }
+
     @Override
     void onEvent(ActivitiEvent event) {
         if(event.getType() == ActivitiEventType.PROCESS_COMPLETED) {
@@ -62,9 +72,9 @@ class RemoteNotifierEventListener implements ActivitiEventListener {
 
     private NotifyEvent buildEvent(ActivitiEvent event) {
         NotifyEvent notifyEvent = new NotifyEvent(type: event.getType(), executionId: event.getExecutionId(), processInstanceId: event.getProcessInstanceId(), processDefinitionId: event.getProcessDefinitionId());
-        if(event instanceof ActivitiEntityEvent) {
+        /*if(event instanceof ActivitiEntityEvent) {
             notifyEvent.entity = event.getEntity();
-        }
+        }*/
         notifyEvent.businessKey = getBusinessKeyFromProcessInstanceId(event.getProcessInstanceId());
         return notifyEvent;
     }

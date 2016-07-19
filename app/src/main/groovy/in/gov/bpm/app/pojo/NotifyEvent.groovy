@@ -10,6 +10,6 @@ class NotifyEvent {
     String executionId;
     String processInstanceId;
     String processDefinitionId;
-    Object entity;
+    //Object entity;
     String businessKey;
 }

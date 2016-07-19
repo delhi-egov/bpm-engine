@@ -139,14 +139,14 @@ class ActivitiEngineConfiguration {
             processEngineConfiguration.setMailServerUseSSL(emailUseSSL);
             processEngineConfiguration.setMailServerUseTLS(emailUseTLS);
         }
-        if(notificationEnable) {
+        /*if(notificationEnable) {
             processEngineConfiguration.setEventListeners([remoteNotifierEventListener()]);
-        }
+        }*/
         return processEngineConfiguration;
     }
 
-    public RemoteNotifierEventListener remoteNotifierEventListener() {
-        return new RemoteNotifierEventListener(url: notificationUrl, username: notificationUsername, password: notificationPassword);
+    public RemoteNotifierEventListener remoteNotifierEventListener(RuntimeService runtimeService) {
+        return new RemoteNotifierEventListener(notificationUrl, notificationUsername, notificationPassword, restTemplate(), runtimeService);
     }
 
     @Bean
@@ -162,6 +162,9 @@ class ActivitiEngineConfiguration {
 
     @Bean
     public RuntimeService runtimeService() {
+        if(notificationEnable) {
+            processEngine().getRuntimeService().addEventListener(remoteNotifierEventListener(processEngine().getRuntimeService()));
+        }
         return processEngine().getRuntimeService();
     }
 
