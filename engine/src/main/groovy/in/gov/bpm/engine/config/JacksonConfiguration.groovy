@@ -1,4 +1,4 @@
-package in.gov.bpm.app.config
+package in.gov.bpm.engine.config
 
 import com.fasterxml.jackson.databind.ObjectMapper
 import org.springframework.context.annotation.Bean

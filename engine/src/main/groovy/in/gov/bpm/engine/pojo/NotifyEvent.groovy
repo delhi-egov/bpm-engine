@@ -1,4 +1,4 @@
-package in.gov.bpm.app.pojo
+package in.gov.bpm.engine.pojo
 
 import org.activiti.engine.delegate.event.ActivitiEventType
 

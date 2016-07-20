@@ -1,33 +1,26 @@
-package in.gov.bpm.app.config
+package in.gov.bpm.engine.config
 
 import com.mysql.jdbc.Driver
-import in.gov.bpm.app.impl.RemoteNotifierEventListener
-import org.activiti.engine.FormService
-import org.activiti.engine.HistoryService
-import org.activiti.engine.IdentityService
-import org.activiti.engine.ManagementService
-import org.activiti.engine.ProcessEngine
-import org.activiti.engine.ProcessEngineConfiguration
-import org.activiti.engine.RepositoryService
-import org.activiti.engine.RuntimeService
-import org.activiti.engine.TaskService
+import in.gov.bpm.engine.impl.UserInfoInjector
+import org.activiti.engine.*
 import org.activiti.engine.impl.cfg.ProcessEngineConfigurationImpl
 import org.activiti.engine.impl.history.HistoryLevel
 import org.activiti.spring.ProcessEngineFactoryBean
 import org.activiti.spring.SpringProcessEngineConfiguration
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.context.annotation.Bean
+import org.springframework.context.annotation.ComponentScan
 import org.springframework.context.annotation.Configuration
-import org.springframework.context.annotation.DependsOn
+import org.springframework.context.annotation.EnableAspectJAutoProxy
+import org.springframework.context.annotation.Import
 import org.springframework.context.annotation.PropertySource
 import org.springframework.context.annotation.PropertySources
 import org.springframework.context.support.PropertySourcesPlaceholderConfigurer
 import org.springframework.jdbc.datasource.DataSourceTransactionManager
-import org.springframework.transaction.PlatformTransactionManager
 import org.springframework.jdbc.datasource.SimpleDriverDataSource
+import org.springframework.transaction.PlatformTransactionManager
 import org.springframework.web.client.RestTemplate
 
-import javax.annotation.PostConstruct;
 import javax.sql.DataSource
 
 /**
@@ -35,6 +28,9 @@ import javax.sql.DataSource
  */
 @Configuration
 @PropertySources(@PropertySource("file:/egov.properties"))
+@Import(value = [RestConfig, JacksonConfiguration])
+@ComponentScan(basePackages = "in.gov.bpm.engine.impl")
+@EnableAspectJAutoProxy
 class ActivitiEngineConfiguration {
 
     @Value('${jdbc.url}')
@@ -67,20 +63,8 @@ class ActivitiEngineConfiguration {
     @Value('${email.useTLS}')
     Boolean emailUseTLS;
 
-    @Value('${notification.enable}')
-    Boolean notificationEnable;
 
-    @Value('${notification.url}')
-    String notificationUrl;
-
-    @Value('${notification.username}')
-    String notificationUsername;
-
-    @Value('${notification.password}')
-    String notificationPassword;
-
-
-    @Bean
+    @Bean(name = "processEngineDataSource")
     public DataSource dataSource() {
         SimpleDriverDataSource ds = new SimpleDriverDataSource();
         ds.setDriverClass(Driver);
@@ -139,14 +123,7 @@ class ActivitiEngineConfiguration {
             processEngineConfiguration.setMailServerUseSSL(emailUseSSL);
             processEngineConfiguration.setMailServerUseTLS(emailUseTLS);
         }
-        /*if(notificationEnable) {
-            processEngineConfiguration.setEventListeners([remoteNotifierEventListener()]);
-        }*/
         return processEngineConfiguration;
-    }
-
-    public RemoteNotifierEventListener remoteNotifierEventListener(RuntimeService runtimeService) {
-        return new RemoteNotifierEventListener(notificationUrl, notificationUsername, notificationPassword, restTemplate(), runtimeService);
     }
 
     @Bean
@@ -156,15 +133,17 @@ class ActivitiEngineConfiguration {
     }
 
     @Bean
+    public UserInfoInjector userInfoInjector() {
+        return new UserInfoInjector();
+    }
+
+    @Bean
     public RepositoryService repositoryService() {
         return processEngine().getRepositoryService();
     }
 
     @Bean
     public RuntimeService runtimeService() {
-        if(notificationEnable) {
-            processEngine().getRuntimeService().addEventListener(remoteNotifierEventListener(processEngine().getRuntimeService()));
-        }
         return processEngine().getRuntimeService();
     }
 
