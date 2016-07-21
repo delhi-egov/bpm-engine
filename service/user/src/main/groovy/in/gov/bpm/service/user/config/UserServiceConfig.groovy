@@ -12,5 +12,5 @@ import in.gov.bpm.db.config.DbConfig
 @Configuration
 @ComponentScan(basePackages = 'in.gov.bpm.service.user')
 @Import(value = [DbConfig])
-class UserConfig {
+class UserServiceConfig {
 }

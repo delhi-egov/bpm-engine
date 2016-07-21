@@ -1,5 +1,6 @@
 package in.gov.bpm.db.entity
 
+import com.fasterxml.jackson.annotation.JsonProperty
 import groovy.transform.ToString
 
 import javax.persistence.CascadeType
@@ -17,9 +18,11 @@ import javax.persistence.UniqueConstraint
 @Table(name = 'applications',  uniqueConstraints= @UniqueConstraint(columnNames=["type", "user_id"]))
 @ToString
 class Application extends Auditable implements Serializable {
-    @Column(name = "submission_stage")
+    @Column(name = "stage")
+    @JsonProperty(value = "stage")
     String submissionStage;
-    @Column(name = "execution_status")
+    @Column(name = "status")
+    @JsonProperty(value = "status")
     String executionStatus;
     String type;
     @OneToOne(cascade = CascadeType.MERGE)

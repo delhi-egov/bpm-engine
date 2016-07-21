@@ -6,6 +6,7 @@ import org.activiti.engine.TaskService
 import org.activiti.engine.runtime.ProcessInstance
 import org.activiti.engine.task.Task
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Component
 
 /**
@@ -20,9 +21,15 @@ class ActivitiServiceImpl implements ActivitiService {
     @Autowired
     TaskService taskService;
 
+    @Value('${bpm.username}')
+    String bpmUsername;
+
+    @Value('${bpm.password}')
+    String bpmPassword;
+
     @Override
-    ProcessInstance startProcessInstanceByKey(String key, Map<String, Object> variables) {
-        return runtimeService.startProcessInstanceByKey(key, variables);
+    ProcessInstance startProcessInstanceByKey(String key, String businessKey, Map<String, Object> variables) {
+        return runtimeService.startProcessInstanceByKey(key, businessKey, variables);
     }
 
     @Override
@@ -52,6 +59,11 @@ class ActivitiServiceImpl implements ActivitiService {
     @Override
     List<Task> getTasksForAssigneeByBusinessKey(String assignee, String key) {
         return taskService.createTaskQuery().taskAssignee(assignee).processInstanceBusinessKey(key).list();
+    }
+
+    @Override
+    List<Task> getTasksForPortalAssigneeByBusinessKey(String key) {
+        return getTasksForAssigneeByBusinessKey(bpmUsername, key);
     }
 
     @Override

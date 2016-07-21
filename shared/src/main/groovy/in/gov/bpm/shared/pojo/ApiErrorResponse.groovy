@@ -13,5 +13,6 @@ class ApiErrorResponse {
         public static final Integer INVALID_DATA = 2;
         public static final Integer RESOURCE_EXPIRED = 3;
         public static final Integer OPERATION_FAILED = 4;
+        public static final Integer APPLICATION_AUTHORIZATION_ERROR = 5;
     }
 }

@@ -8,4 +8,5 @@ import org.springframework.data.repository.PagingAndSortingRepository
  */
 interface FormRepository extends PagingAndSortingRepository<Form, Long> {
     List<Form> findByApplication_Id(Long applicationId);
+    Form findByTypeAndApplication_Id(String type, Long applicationId);
 }

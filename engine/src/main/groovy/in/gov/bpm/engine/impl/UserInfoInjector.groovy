@@ -22,7 +22,7 @@ class UserInfoInjector {
     @Value('${bpm.password}')
     String bpmPassword;
 
-    @Pointcut("* execution(in.gov.bpm.engine.ActivitiServiceImpl.*(..))")
+    @Pointcut("execution(* in.gov.bpm.engine.impl.ActivitiServiceImpl.*(..))")
     public void allMethods() {
 
     }

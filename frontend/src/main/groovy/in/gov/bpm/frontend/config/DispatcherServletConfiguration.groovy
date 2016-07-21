@@ -15,13 +15,13 @@ import org.springframework.http.converter.HttpMessageConverter
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter
 import org.springframework.remoting.httpinvoker.HttpInvokerProxyFactoryBean
 import org.springframework.web.multipart.MultipartResolver
+import org.springframework.web.multipart.commons.CommonsMultipartResolver
 import org.springframework.web.servlet.config.annotation.ContentNegotiationConfigurer
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurationSupport
 import org.springframework.web.servlet.i18n.LocaleChangeInterceptor
 import org.springframework.web.servlet.i18n.SessionLocaleResolver
 import org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerMapping
 import in.gov.bpm.shared.config.ExceptionConfig
-import in.gov.bpm.service.user.config.UserConfig
 import in.gov.bpm.engine.api.ActivitiService
 
 /**
@@ -36,8 +36,8 @@ class DispatcherServletConfiguration extends WebMvcConfigurationSupport {
     @Autowired
     private Environment environment;
 
-    @Value('${bpm.url}')
-    String bpmUrl;
+    @Value('${storage.maxFileSize}')
+    String maxFileSize;
 
     @Bean
     public static PropertySourcesPlaceholderConfigurer propertyConfig() {
@@ -72,11 +72,10 @@ class DispatcherServletConfiguration extends WebMvcConfigurationSupport {
     }
 
     @Bean
-    public ActivitiService httpInvokerProxyFactoryBean() {
-        HttpInvokerProxyFactoryBean httpInvokerProxyFactoryBean = new HttpInvokerProxyFactoryBean();
-        httpInvokerProxyFactoryBean.serviceInterface = ActivitiService;
-        httpInvokerProxyFactoryBean.serviceUrl = bpmUrl;
-        return (ActivitiService) httpInvokerProxyFactoryBean.getObject();
+    MultipartResolver multipartResolver() {
+        MultipartResolver resolver = new CommonsMultipartResolver();
+        resolver.maxUploadSize = Long.valueOf(maxFileSize);
+        return resolver;
     }
 
     @Override
