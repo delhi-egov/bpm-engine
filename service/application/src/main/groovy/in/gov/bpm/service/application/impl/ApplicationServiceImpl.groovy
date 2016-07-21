@@ -10,6 +10,7 @@ import in.gov.bpm.db.repository.FormRepository
 import in.gov.bpm.engine.api.ActivitiService
 import in.gov.bpm.service.application.api.ApplicationService
 import in.gov.bpm.shared.exception.ApplicationAuthorizationException
+import in.gov.bpm.shared.exception.DocumentAuthorizationException
 import in.gov.bpm.shared.pojo.Task
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Component
@@ -180,6 +181,14 @@ class ApplicationServiceImpl implements ApplicationService {
                 id: task.id,
                 name: task.name
         );
+    }
+
+    @Override
+    void checkFileBelongsToUser(User user, String file) {
+        Document document = documentRepository.findByPath(file);
+        if(document == null || document.getApplication().getUser().id != user.id) {
+            throw new DocumentAuthorizationException();
+        }
     }
 
 

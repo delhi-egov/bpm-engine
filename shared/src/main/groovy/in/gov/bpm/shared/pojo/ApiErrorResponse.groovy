@@ -14,5 +14,6 @@ class ApiErrorResponse {
         public static final Integer RESOURCE_EXPIRED = 3;
         public static final Integer OPERATION_FAILED = 4;
         public static final Integer APPLICATION_AUTHORIZATION_ERROR = 5;
+        public static final Integer DOCUMENT_AUTHORIZATION_ERROR = 6;
     }
 }

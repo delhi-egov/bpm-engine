@@ -9,4 +9,5 @@ import org.springframework.data.repository.PagingAndSortingRepository
 interface DocumentRepository extends PagingAndSortingRepository<Document, Long> {
     List<Document> findByApplication_Id(Long applicationId);
     Document findByTypeAndApplication_Id(String type, Long applicationId);
+    Document findByPath(String path);
 }
