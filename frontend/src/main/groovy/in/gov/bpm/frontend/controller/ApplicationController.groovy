@@ -59,14 +59,14 @@ class ApplicationController {
     }
 
     @RequestMapping(value = '/attachDocument', method = RequestMethod.POST, consumes = ["multipart/form-data"])
-    Document attachDocument(@AuthenticationPrincipal UserDetails userDetails, @RequestPart('form') String form, @RequestPart('file') MultipartFile file) {
+    Document attachDocument(@AuthenticationPrincipal UserDetails userDetails, @RequestParam('form') String form, @RequestParam('file') MultipartFile file) {
         AttachDocumentRequest request = objectMapper.readValue(form, AttachDocumentRequest);
         if(!file.isEmpty()) {
             try {
                 byte[] bytes = file.getBytes();
 
                 //String name = file.getOriginalFilename() + '.' + userDetails.getPrincipal() + '.' + new Date();
-                String name = (new Date()).toString() + '-' + userDetails.getPrincipal() + '-' + file.getOriginalFilename();
+                String name = (new Date()).getTime() + '-' + userDetails.getPrincipal() + '-' + file.getOriginalFilename();
 
                 // Create the file on server
                 File serverFile = new File(storagePath + File.separator + name);

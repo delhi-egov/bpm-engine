@@ -24,7 +24,7 @@ import in.gov.bpm.engine.config.ActivitiEngineConfiguration
  * Created by user-1 on 24/6/16.
  */
 @Configuration
-@ComponentScan(["org.activiti.rest.exception", "org.activiti.rest.service.api"])
+@ComponentScan(["org.activiti.rest.exception", "org.activiti.rest.service.api", "in.gov.bpm.app.controller"])
 @Import(value = [ActivitiEngineConfiguration])
 class DispatcherServletConfiguration extends WebMvcConfigurationSupport {
 
@@ -64,7 +64,7 @@ class DispatcherServletConfiguration extends WebMvcConfigurationSupport {
         return requestMappingHandlerMapping;
     }
 
-    @Bean
+    @Bean(name = "/activitiService")
     public HttpInvokerServiceExporter httpInvokerServiceExporter() {
         HttpInvokerServiceExporter serviceExporter = new HttpInvokerServiceExporter();
         serviceExporter.service = activitiService;

@@ -1,6 +1,9 @@
 package in.gov.bpm.service.application.config
 
+import com.fasterxml.jackson.databind.ObjectMapper
 import in.gov.bpm.engine.api.ActivitiService
+import in.gov.bpm.service.application.impl.BasicAuthenticationHttpInvokerRequestExecutor
+import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.ComponentScan
@@ -21,6 +24,9 @@ import org.springframework.remoting.httpinvoker.HttpInvokerProxyFactoryBean
 @PropertySources(@PropertySource("file:/egov.properties"))
 class ApplicationServiceConfig {
 
+    @Autowired
+    BasicAuthenticationHttpInvokerRequestExecutor requestExecutor;
+
     @Value('${bpm.url}')
     String bpmUrl;
 
@@ -30,10 +36,16 @@ class ApplicationServiceConfig {
     }
 
     @Bean
-    public ActivitiService httpInvokerProxyFactoryBean() {
+    public HttpInvokerProxyFactoryBean httpInvokerProxyFactoryBean() {
         HttpInvokerProxyFactoryBean httpInvokerProxyFactoryBean = new HttpInvokerProxyFactoryBean();
         httpInvokerProxyFactoryBean.serviceInterface = ActivitiService;
-        httpInvokerProxyFactoryBean.serviceUrl = bpmUrl;
-        return (ActivitiService) httpInvokerProxyFactoryBean.getObject();
+        httpInvokerProxyFactoryBean.serviceUrl = bpmUrl + '/activitiService';
+        httpInvokerProxyFactoryBean.httpInvokerRequestExecutor = requestExecutor;
+        return httpInvokerProxyFactoryBean;
+    }
+
+    @Bean
+    public ObjectMapper objectMapper() {
+        return new ObjectMapper();
     }
 }

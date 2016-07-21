@@ -132,10 +132,10 @@ class ActivitiEngineConfiguration {
         return rest;
     }
 
-    @Bean
+    /*@Bean
     public UserInfoInjector userInfoInjector() {
         return new UserInfoInjector();
-    }
+    }*/
 
     @Bean
     public RepositoryService repositoryService() {

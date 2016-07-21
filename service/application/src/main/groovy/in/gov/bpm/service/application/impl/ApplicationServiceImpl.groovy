@@ -1,5 +1,6 @@
 package in.gov.bpm.service.application.impl
 
+import com.fasterxml.jackson.databind.ObjectMapper
 import in.gov.bpm.db.entity.Application
 import in.gov.bpm.db.entity.Document
 import in.gov.bpm.db.entity.Form
@@ -11,8 +12,10 @@ import in.gov.bpm.engine.api.ActivitiService
 import in.gov.bpm.service.application.api.ApplicationService
 import in.gov.bpm.shared.exception.ApplicationAuthorizationException
 import in.gov.bpm.shared.exception.DocumentAuthorizationException
+import in.gov.bpm.shared.exception.TaskAuthorizationException
 import in.gov.bpm.shared.pojo.Task
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.stereotype.Component
 
 import javax.persistence.EntityManager
@@ -38,6 +41,9 @@ class ApplicationServiceImpl implements ApplicationService {
 
     @Autowired
     EntityManager entityManager;
+
+    @Autowired
+    ObjectMapper objectMapper;
 
     @Override
     Application createApplication(User user, String type) {
@@ -131,7 +137,7 @@ class ApplicationServiceImpl implements ApplicationService {
             documentMap.put(it.type, it.path);
         }
         Map<String, Object> variables = new HashMap<>();
-        variables.put('user', user);
+        variables.put('user', objectMapper.convertValue(user, Map));
         variables.put('forms', formMap);
         variables.put('documents', documentMap);
         activitiService.startProcessInstanceByKey(application.type, application.id.toString(), variables);
@@ -147,13 +153,7 @@ class ApplicationServiceImpl implements ApplicationService {
     @Override
     List<Task> getTasksByApplicationForPortalWithUserAuthorization(User user, Long applicationId) {
         Application application = checkApplicationBelongsToUser(user, applicationId);
-        List<org.activiti.engine.task.Task> taskList = activitiService.getTasksForPortalAssigneeByBusinessKey(applicationId.toString());
-        return taskList.stream().map({ it ->
-            Task task = new Task(
-                    name: it.name,
-                    id: it.id
-            )
-        }).collect(Collectors.toList());
+        return activitiService.getTasksForPortalAssigneeByBusinessKey(applicationId.toString());
     }
 
     @Override
@@ -176,11 +176,7 @@ class ApplicationServiceImpl implements ApplicationService {
     @Override
     Task completeTaskWithUserAuthorization(User user, Long applicationId, String taskId, Map<String, Object> variables) {
         checkTaskBelongsToUserAndApplication(user, applicationId, taskId);
-        org.activiti.engine.task.Task task = activitiService.completeTask(taskId, variables);
-        return new Task(
-                id: task.id,
-                name: task.name
-        );
+        return activitiService.completeTask(taskId, variables);
     }
 
     @Override
@@ -250,7 +246,7 @@ class ApplicationServiceImpl implements ApplicationService {
 
     private void checkTaskBelongsToUserAndApplication(User user, Long applicationId, String taskId) {
         Application application = checkApplicationBelongsToUser(user, applicationId);
-        List<org.activiti.engine.task.Task> taskList = activitiService.getTasksForPortalAssigneeByBusinessKey(applicationId.toString());
+        List<Task> taskList = activitiService.getTasksForPortalAssigneeByBusinessKey(applicationId.toString());
         Boolean taskBelongsToApplication = false;
         taskList.each {
             if(it.id == taskId) {
@@ -258,7 +254,7 @@ class ApplicationServiceImpl implements ApplicationService {
             }
         }
         if(!taskBelongsToApplication) {
-            throw new ApplicationAuthorizationException();
+            throw new TaskAuthorizationException();
         }
     }
 
