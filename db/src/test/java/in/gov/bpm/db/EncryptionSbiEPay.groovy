@@ -54,7 +54,7 @@ public class EncryptionSbiEPay {
         System.out.println(encrypt(billingDetails));
         System.out.println(encrypt(shippingDetails));
         System.out.println(encrypt(paymentDetails));
-        
+
     }
     
 }

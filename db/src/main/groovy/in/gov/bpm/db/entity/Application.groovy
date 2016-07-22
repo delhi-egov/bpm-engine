@@ -15,7 +15,7 @@ import javax.persistence.UniqueConstraint
  * Created by vaibhav on 20/7/16.
  */
 @Entity
-@Table(name = 'applications',  uniqueConstraints= @UniqueConstraint(columnNames=["type", "user_id"]))
+@Table(name = 'applications')
 @ToString
 class Application extends Auditable implements Serializable {
     @Column(name = "stage")

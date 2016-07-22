@@ -6,6 +6,7 @@ import in.gov.bpm.service.application.api.ApplicationService
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.security.web.bind.annotation.AuthenticationPrincipal
 import org.springframework.web.bind.annotation.RequestMapping
+import org.springframework.web.bind.annotation.RequestMethod
 import org.springframework.web.bind.annotation.RestController
 
 /**
@@ -18,7 +19,7 @@ class ApplicationCollectionController {
     @Autowired
     ApplicationService applicationService;
 
-    @RequestMapping(value = '/')
+    @RequestMapping(value = '/', method = RequestMethod.GET)
     List<Application> getApplications(@AuthenticationPrincipal UserDetails userDetails) {
         return applicationService.getApplicationsForUser(userDetails.getUser());
     }

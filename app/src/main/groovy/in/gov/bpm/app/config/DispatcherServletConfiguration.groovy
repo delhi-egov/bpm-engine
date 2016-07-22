@@ -14,6 +14,7 @@ import org.springframework.http.converter.json.MappingJackson2HttpMessageConvert
 import org.springframework.remoting.httpinvoker.HttpInvokerServiceExporter
 import org.springframework.web.multipart.MultipartResolver
 import org.springframework.web.servlet.config.annotation.ContentNegotiationConfigurer
+import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurationSupport
 import org.springframework.web.servlet.i18n.LocaleChangeInterceptor
 import org.springframework.web.servlet.i18n.SessionLocaleResolver
@@ -25,7 +26,7 @@ import in.gov.bpm.engine.config.ActivitiEngineConfiguration
  */
 @Configuration
 @ComponentScan(["org.activiti.rest.exception", "org.activiti.rest.service.api", "in.gov.bpm.app.controller"])
-@Import(value = [ActivitiEngineConfiguration])
+@Import(value = [ActivitiEngineConfiguration, SwaggerConfig])
 class DispatcherServletConfiguration extends WebMvcConfigurationSupport {
 
     @Autowired
@@ -87,6 +88,12 @@ class DispatcherServletConfiguration extends WebMvcConfigurationSupport {
     @Override
     protected void configureContentNegotiation(ContentNegotiationConfigurer configurer) {
         configurer.favorPathExtension(false);
+    }
+
+    @Override
+    protected void addResourceHandlers(ResourceHandlerRegistry registry) {
+        registry.addResourceHandler("swagger-ui.html").addResourceLocations("classpath:/META-INF/resources/");
+        registry.addResourceHandler("/webjars/**").addResourceLocations("classpath:/META-INF/resources/webjars/");
     }
 
 }

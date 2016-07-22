@@ -35,6 +35,7 @@ The BPM engine would be used to execute all the processes deployed on it.
 2. Edit /egov.properties file to point to your MySQL server and your gmail account
 3. Run "maven clean install -DskipTests" from bpm-engine directory
 4. Copy the generated bpm-engine.war file from the 'app/target' directory to the webapps directory of your Tomcat installation
+5. Visit http://localhost:8080/bpm-engine/swagger-ui.html and login using kermit/kermit
 
 # Frontend server setup
 
@@ -48,3 +49,4 @@ The BPM engine would be used to execute all the processes deployed on it.
             "password" : "password"
         }
 4. Go to MySQL console, select 'egov' database by giving command 'use egov;' and give the following command 'update users set role="ADMIN";'
+5. 5. Visit http://localhost:8080/bpm-engine/swagger-ui.html and login using 1234567890/password

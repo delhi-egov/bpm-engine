@@ -44,6 +44,9 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
                 .csrf().disable()
                 .authorizeRequests()
                 .antMatchers('/user/register').permitAll()
+                .antMatchers("/swagger-ui.html").hasRole("ADMIN")
+                .antMatchers("/webjars/**").hasRole("ADMIN")
+                .antMatchers("/notification").hasRole("ADMIN")
                 .antMatchers('/**').authenticated()
                 .and()
                 .httpBasic().and().sessionManagement().sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED);

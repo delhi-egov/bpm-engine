@@ -17,6 +17,7 @@ import org.springframework.remoting.httpinvoker.HttpInvokerProxyFactoryBean
 import org.springframework.web.multipart.MultipartResolver
 import org.springframework.web.multipart.commons.CommonsMultipartResolver
 import org.springframework.web.servlet.config.annotation.ContentNegotiationConfigurer
+import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurationSupport
 import org.springframework.web.servlet.i18n.LocaleChangeInterceptor
 import org.springframework.web.servlet.i18n.SessionLocaleResolver
@@ -28,7 +29,7 @@ import in.gov.bpm.engine.api.ActivitiService
  * Created by user-1 on 24/6/16.
  */
 @Configuration
-@Import(value = [ExceptionConfig, SecurityConfiguration])
+@Import(value = [ExceptionConfig, SecurityConfiguration, SwaggerConfig])
 @ComponentScan(basePackages = "in.gov.bpm.frontend.controller")
 @PropertySources(@PropertySource("file:/egov.properties"))
 class DispatcherServletConfiguration extends WebMvcConfigurationSupport {
@@ -95,4 +96,9 @@ class DispatcherServletConfiguration extends WebMvcConfigurationSupport {
         configurer.favorPathExtension(false);
     }
 
+    @Override
+    protected void addResourceHandlers(ResourceHandlerRegistry registry) {
+        registry.addResourceHandler("swagger-ui.html").addResourceLocations("classpath:/META-INF/resources/");
+        registry.addResourceHandler("/webjars/**").addResourceLocations("classpath:/META-INF/resources/webjars/");
+    }
 }

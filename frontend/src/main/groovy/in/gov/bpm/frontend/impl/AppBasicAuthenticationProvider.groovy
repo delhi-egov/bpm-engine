@@ -28,7 +28,7 @@ class AppBasicAuthenticationProvider implements AuthenticationProvider {
         User user = userService.authenticate(phone, password);
         if (user != null) {
             Collection<GrantedAuthority> grantedAuthorities = new ArrayList<GrantedAuthority>();
-            grantedAuthorities.add(new SimpleGrantedAuthority(user.role));
+            grantedAuthorities.add(new SimpleGrantedAuthority('ROLE_' + user.role));
             UserDetails userDetails = new UserDetails(user, grantedAuthorities);
             userDetails.setAuthenticated(true);
             return userDetails;

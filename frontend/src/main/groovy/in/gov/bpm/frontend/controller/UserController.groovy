@@ -2,6 +2,7 @@ package in.gov.bpm.frontend.controller
 
 import in.gov.bpm.db.entity.User
 import in.gov.bpm.frontend.impl.UserDetails
+import in.gov.bpm.frontend.pojo.UserRegisterRequest
 import in.gov.bpm.service.user.api.UserService
 import in.gov.bpm.shared.exception.MissingPropertiesException
 import org.apache.commons.lang3.StringUtils
@@ -34,10 +35,16 @@ class UserController {
     UserService userService;
 
     @RequestMapping(value = '/register', method = RequestMethod.POST)
-    User register(@RequestBody User user) {
-        if(user.phone == null || user.password == null || StringUtils.isAnyEmpty(user.phone.toString(), user.password)) {
+    User register(@RequestBody UserRegisterRequest request) {
+        if(request.phone == null || request.password == null || StringUtils.isAnyEmpty(request.phone.toString(), request.password)) {
             throw new MissingPropertiesException(['phone', 'password']);
         }
+        User user = new User(
+                firstName: request.firstName,
+                lastName: request.lastName,
+                phone: request.phone,
+                password: request.password
+        )
         return userService.register(user);
     }
 
