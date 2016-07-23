@@ -4,7 +4,7 @@ The BPM engine would be used to execute all the processes deployed on it.
 # Installation
 
 1. Download Activiti from http://activiti.org/download.html
-2. Install Tomcat server, MySQL server, Maven and Postman client on your local machine
+2. Install Java8, Tomcat server, MySQL server, Maven and Postman client on your local machine
 3. Clone this repository
 
 # MySQL setup
@@ -18,16 +18,20 @@ The BPM engine would be used to execute all the processes deployed on it.
 2. Unzip the activiti-explorer.war file using "jar -xvf activiti-explorer.war" into a new directory activiti-explorer
 3. Go to WEB-INF/classes/ within the activiti-explorer directory
 4. Edit db.properties to point to your MySQL server and database
-	i. Set db=mysql
-	ii. Set jdbc.driver=com.mysql.jdbc.Driver
-	iii. Set jdbc.url=jdbc:mysql://localhost:3306/activiti
+	1. Set db=mysql
+	2. Set jdbc.driver=com.mysql.jdbc.Driver
+	3. Set jdbc.url=jdbc:mysql://localhost:3306/activiti
+	4. Set jdbc.username=root
+	5. Set jdbc.password=your-mysql-root-password
 5. Edit engine.properties and make all properties in the demo data section, except 'create.demo.users', as 'false'
-6. Copy the entire activiti-explorer directory to webapps directory of your Tomcat installation (Generally found at /var/lib/tomcat7/webapps)
-7. Start tomcat7 service, if not already running, by issuing "sudo service tomcat7 start" command.
-8. Go to localhost:8080/activiti-explorer and login using kermit/kermit
-9. Go to 'Manage' -> 'Groups' and create two new groups with id "alc" and "ro" respectively
-10. Go to 'Manage' -> 'Users' and create two new users 'vijay' and 'vaibhav'. Add vijay to group alc and vaibhav to group ro.
-11. Go to 'Manage' -> 'Deployments' -> 'Upload New' and upload the file 'app/src/test/resources/labor.bpmn20.xml' from the cloned repository.
+6. Give command `mvn -DgroupId=mysql -DartifactId=mysql-connector-java -Dversion=6.0.3 -DrepoUrl="http://repo1.maven.org/maven2" dependency:get`
+7. Copy file `~/.m2/repository/mysql/mysql-connector-java/6.0.3/mysql-connector-java-6.0.3.jar` to WEB-INF/lib directory
+8. Copy the entire activiti-explorer directory to webapps directory of your Tomcat installation (Generally found at /var/lib/tomcat7/webapps)
+9. Start tomcat7 service, if not already running, by issuing "sudo service tomcat7 start" command.
+10. Go to localhost:8080/activiti-explorer and login using kermit/kermit
+11. Go to 'Manage' -> 'Groups' and create two new groups with id "alc" and "ro" respectively
+12. Go to 'Manage' -> 'Users' and create two new users 'vijay' and 'vaibhav'. Add vijay to group alc and vaibhav to group ro.
+13. Go to 'Manage' -> 'Deployments' -> 'Upload New' and upload the file 'app/src/test/resources/labor.bpmn20.xml' from the cloned repository.
 
 # bpm-engine setup
 
