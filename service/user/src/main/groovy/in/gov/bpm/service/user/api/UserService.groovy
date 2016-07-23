@@ -11,4 +11,6 @@ interface UserService {
     User authenticate(Long phone, String password);
     User save(User user);
     User register(User user);
+    void generateOtp(User user);
+    Boolean verifyOtp(User user, Integer otpProvided);
 }

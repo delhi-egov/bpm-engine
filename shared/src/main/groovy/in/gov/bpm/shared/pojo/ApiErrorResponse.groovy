@@ -16,5 +16,6 @@ class ApiErrorResponse {
         public static final Integer APPLICATION_AUTHORIZATION_ERROR = 5;
         public static final Integer DOCUMENT_AUTHORIZATION_ERROR = 6;
         public static final Integer TASK_AUTHORIZATION_ERROR = 7;
+        public static final Integer INVALID_STATE_ERROR = 8;
     }
 }

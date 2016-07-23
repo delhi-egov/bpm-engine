@@ -8,4 +8,5 @@ class UserRegisterRequest implements Serializable {
     String lastName;
     Long phone;
     String password;
+    String email;
 }

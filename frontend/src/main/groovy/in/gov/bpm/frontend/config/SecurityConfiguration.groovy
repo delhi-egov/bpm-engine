@@ -47,7 +47,9 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
                 .antMatchers("/swagger-ui.html").hasRole("ADMIN")
                 .antMatchers("/webjars/**").hasRole("ADMIN")
                 .antMatchers("/notification").hasRole("ADMIN")
-                .antMatchers('/**').authenticated()
+                .antMatchers("/user/generateOtp").hasAnyRole("ADMIN", "UNVERIFIED")
+                .antMatchers("/user/verifyOtp").hasAnyRole("ADMIN", "UNVERIFIED")
+                .antMatchers('/**').hasAnyRole("ADMIN", "USER")
                 .and()
                 .httpBasic().and().sessionManagement().sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED);
     }

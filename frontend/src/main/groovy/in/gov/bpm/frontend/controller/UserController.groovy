@@ -3,6 +3,7 @@ package in.gov.bpm.frontend.controller
 import in.gov.bpm.db.entity.User
 import in.gov.bpm.frontend.impl.UserDetails
 import in.gov.bpm.frontend.pojo.UserRegisterRequest
+import in.gov.bpm.frontend.pojo.VerifyOtpRequest
 import in.gov.bpm.service.user.api.UserService
 import in.gov.bpm.shared.exception.MissingPropertiesException
 import org.apache.commons.lang3.StringUtils
@@ -43,7 +44,8 @@ class UserController {
                 firstName: request.firstName,
                 lastName: request.lastName,
                 phone: request.phone,
-                password: request.password
+                password: request.password,
+                email: request.email
         )
         return userService.register(user);
     }
@@ -60,5 +62,16 @@ class UserController {
             new SecurityContextLogoutHandler().logout(request, response, auth);
         }
         return true;
+    }
+
+    @RequestMapping(value = '/generateOtp', method = RequestMethod.GET)
+    Boolean generateOtp(@AuthenticationPrincipal UserDetails userDetails) {
+        userService.generateOtp(userDetails.getUser());
+        return true;
+    }
+
+    @RequestMapping(value = '/verifyOtp', method = RequestMethod.POST)
+    Boolean verifyOtp(@AuthenticationPrincipal UserDetails userDetails, @RequestBody VerifyOtpRequest request) {
+        return userService.verifyOtp(userDetails.getUser(), request.otp);
     }
 }
