@@ -5,13 +5,17 @@ import in.gov.bpm.db.entity.Application
 import in.gov.bpm.db.entity.Document
 import in.gov.bpm.db.entity.Form
 import in.gov.bpm.db.entity.User
+import in.gov.bpm.db.entity.ApplicationType
 import in.gov.bpm.db.repository.ApplicationRepository
+import in.gov.bpm.db.repository.ApplicationTypeRepository
 import in.gov.bpm.db.repository.DocumentRepository
 import in.gov.bpm.db.repository.FormRepository
 import in.gov.bpm.engine.api.ActivitiService
 import in.gov.bpm.service.application.api.ApplicationService
 import in.gov.bpm.shared.exception.ApplicationAuthorizationException
 import in.gov.bpm.shared.exception.DocumentAuthorizationException
+import in.gov.bpm.shared.exception.InvalidStateException
+import in.gov.bpm.shared.exception.InvalidValueException
 import in.gov.bpm.shared.exception.TaskAuthorizationException
 import in.gov.bpm.shared.pojo.Task
 import org.springframework.beans.factory.annotation.Autowired
@@ -40,6 +44,9 @@ class ApplicationServiceImpl implements ApplicationService {
     DocumentRepository documentRepository;
 
     @Autowired
+    ApplicationTypeRepository applicationTypeRepository;
+
+    @Autowired
     EntityManager entityManager;
 
     @Autowired
@@ -47,9 +54,13 @@ class ApplicationServiceImpl implements ApplicationService {
 
     @Override
     Application createApplication(User user, String type) {
+        ApplicationType applicationType = applicationTypeRepository.findByName(type);
+        if(applicationType == null) {
+            throw new InvalidValueException('type', type);
+        }
         Application application = new Application(
                 user: user,
-                type: type,
+                type: applicationType,
                 submissionStage: 'NEW',
                 executionStatus: 'NOT_SUBMITTED'
         );
@@ -126,6 +137,7 @@ class ApplicationServiceImpl implements ApplicationService {
     @Override
     Application completeApplicationWithUserAuthorization(User user, Long applicationId) {
         Application application = checkApplicationBelongsToUser(user, applicationId);
+        checkIfPaymentIsDone(application);
         List<Form> formList = formRepository.findByApplication_Id(applicationId);
         List<Document> documentList = documentRepository.findByApplication_Id(applicationId);
         Map<String, String> formMap = new HashMap<>();
@@ -140,7 +152,7 @@ class ApplicationServiceImpl implements ApplicationService {
         variables.put('user', objectMapper.convertValue(user, Map));
         variables.put('forms', formMap);
         variables.put('documents', documentMap);
-        activitiService.startProcessInstanceByKey(application.type, application.id.toString(), variables);
+        activitiService.startProcessInstanceByKey(application.type.bpmProcess, application.id.toString(), variables);
         return updateStageAndStatusWithUserAuthorization(user, applicationId, 'COMPLETE', 'PROGRESS');
     }
 
@@ -255,6 +267,12 @@ class ApplicationServiceImpl implements ApplicationService {
         }
         if(!taskBelongsToApplication) {
             throw new TaskAuthorizationException();
+        }
+    }
+
+    private static void checkIfPaymentIsDone(Application application) {
+        if(application.type.requiresPayment && !application.paymentDone) {
+            throw new InvalidStateException("Payment not done for application");
         }
     }
 

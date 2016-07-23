@@ -3,7 +3,9 @@ package in.gov.bpm.db
 import in.gov.bpm.db.config.DbConfig
 import in.gov.bpm.db.entity.Application
 import in.gov.bpm.db.entity.User
+import in.gov.bpm.db.entity.ApplicationType
 import in.gov.bpm.db.repository.ApplicationRepository
+import in.gov.bpm.db.repository.ApplicationTypeRepository
 import in.gov.bpm.db.repository.UserRepository
 import org.junit.Assert
 import org.junit.Test
@@ -26,6 +28,9 @@ class RepositoryTest {
 
     @Autowired
     ApplicationRepository applicationRepository;
+
+    @Autowired
+    ApplicationTypeRepository applicationTypeRepository;
 
     @Autowired
     EntityManager entityManager;
@@ -52,8 +57,19 @@ class RepositoryTest {
     }
 
     @Test
+    void testApplicationType() {
+        ApplicationType applicationType = new ApplicationType(
+                name: 'process',
+                requiresPayment: false,
+                bpmProcess: 'process'
+        );
+        applicationTypeRepository.save(applicationType);
+    }
+
+    @Test
     void testQueryOnFk() {
-        Application application = new Application(type: 'test4', user: userRepository.findOne(1l));
+        ApplicationType applicationType = applicationTypeRepository.findByName('process');
+        Application application = new Application(type: applicationType, user: userRepository.findOne(1l));
         applicationRepository.save(application);
         List<Application> applicationList = applicationRepository.findByUser_Id(1l);
         println('ApplicationList is ')

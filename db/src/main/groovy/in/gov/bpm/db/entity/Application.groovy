@@ -7,6 +7,7 @@ import javax.persistence.CascadeType
 import javax.persistence.Column
 import javax.persistence.Entity
 import javax.persistence.JoinColumn
+import javax.persistence.ManyToOne
 import javax.persistence.OneToOne
 import javax.persistence.Table
 import javax.persistence.UniqueConstraint
@@ -18,14 +19,23 @@ import javax.persistence.UniqueConstraint
 @Table(name = 'applications')
 @ToString
 class Application extends Auditable implements Serializable {
+
     @Column(name = "stage")
     @JsonProperty(value = "stage")
     String submissionStage;
+
     @Column(name = "status")
     @JsonProperty(value = "status")
     String executionStatus;
-    String type;
+
+    @ManyToOne
+    @JoinColumn(name = "application_type_id")
+    ApplicationType type;
+
     @OneToOne(cascade = CascadeType.MERGE)
     @JoinColumn(name = 'user_id')
     User user;
+
+    @Column(name = "payment_done")
+    Boolean paymentDone;
 }
