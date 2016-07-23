@@ -149,5 +149,8 @@
         </dependency>
     </dependencies>
 
+    <build>
+        <finalName>frontend</finalName>
+    </build>
 
 </project>
