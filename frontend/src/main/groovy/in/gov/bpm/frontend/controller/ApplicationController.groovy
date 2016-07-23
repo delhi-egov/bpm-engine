@@ -65,7 +65,6 @@ class ApplicationController {
             try {
                 byte[] bytes = file.getBytes();
 
-                //String name = file.getOriginalFilename() + '.' + userDetails.getPrincipal() + '.' + new Date();
                 String name = (new Date()).getTime() + '-' + userDetails.getPrincipal() + '-' + file.getOriginalFilename();
 
                 // Create the file on server

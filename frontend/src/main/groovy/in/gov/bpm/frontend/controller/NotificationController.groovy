@@ -23,7 +23,13 @@ class NotificationController {
     ApplicationService applicationService;
 
     @RequestMapping(value = '/', method = RequestMethod.POST)
-    Application notify(@RequestBody NotificationRequest notificationRequest) {
-        return applicationService.updateStatus(Long.valueOf(notificationRequest.businessKey), 'FINISHED');
+    Boolean notify(@RequestBody NotificationRequest notificationRequest) {
+        if(notificationRequest.type == "PROCESS_COMPLETED") {
+            applicationService.updateStatus(Long.valueOf(notificationRequest.businessKey), 'FINISHED');
+        }
+        if(notificationRequest.type == "TASK_ASSIGNED") {
+            applicationService.updateStatus(Long.valueOf(notificationRequest.businessKey), 'WAITING_ON_USER');
+        }
+        return true;
     }
 }

@@ -202,6 +202,7 @@ class ApplicationServiceImpl implements ApplicationService {
     Application updateCompleteApplicationWithUserAuthorization(User user, Long applicationId) {
         Application application = checkApplicationBelongsToUser(user, applicationId);
         checkIfApplicationInRightStage(application, 'COMPLETE');
+        checkIfApplicationWithRightStatus(application, 'WAITING_ON_USER')
         checkIfPaymentIsDone(application);
         Map<String, Object> variables = createVariableForApplication(applicationId);
         activitiService.setVariablesByBusinessKey(applicationId.toString(), variables);
@@ -288,6 +289,12 @@ class ApplicationServiceImpl implements ApplicationService {
     private static void checkIfApplicationInRightStage(Application application, String stage) {
         if(application.submissionStage != stage) {
             throw new InvalidStateException("This operation is not permitted in current stage of application");
+        }
+    }
+
+    private static void checkIfApplicationWithRightStatus(Application application, String status) {
+        if(application.executionStatus != status) {
+            throw new InvalidStateException("This operation is not permitted in current status of application");
         }
     }
 

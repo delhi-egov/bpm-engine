@@ -2,12 +2,14 @@ package in.gov.bpm.engine.impl
 
 import in.gov.bpm.engine.pojo.NotifyEvent
 import org.activiti.engine.RuntimeService
+import org.activiti.engine.delegate.event.ActivitiEntityEvent
 import org.activiti.engine.delegate.event.ActivitiEvent
 import org.activiti.engine.delegate.event.ActivitiEventListener
 import org.activiti.engine.delegate.event.ActivitiEventType
 import org.activiti.engine.runtime.ProcessInstance
 import org.apache.commons.codec.binary.Base64
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.beans.factory.annotation.Value
 import org.springframework.http.HttpEntity
 import org.springframework.http.HttpHeaders
 import org.springframework.http.HttpMethod
@@ -27,6 +29,12 @@ class RemoteNotifierEventListener implements ActivitiEventListener {
     @Autowired
     RuntimeService runtimeService;
 
+    @Value('${bpm.username}')
+    String bpmUsername;
+
+    @Value('${bpm.password}')
+    String bpmPassword;
+
     String url;
     String username;
     String password;
@@ -45,7 +53,11 @@ class RemoteNotifierEventListener implements ActivitiEventListener {
 
     @Override
     void onEvent(ActivitiEvent event) {
-        if(event.getType() == ActivitiEventType.PROCESS_COMPLETED) {
+        if(event.getType() == ActivitiEventType.PROCESS_COMPLETED || (event.getType() == ActivitiEventType.TASK_ASSIGNED && ((ActivitiEntityEvent) event).getEntity().getAssignee() == bpmUsername)) {
+            HttpEntity httpEntity = new HttpEntity<>(buildEvent(event), headers);
+            restTemplate.exchange(url, HttpMethod.POST, httpEntity, String.class);
+        }
+        if(event.getType() == ActivitiEventType.TASK_ASSIGNED) {
             HttpEntity httpEntity = new HttpEntity<>(buildEvent(event), headers);
             restTemplate.exchange(url, HttpMethod.POST, httpEntity, String.class);
         }
