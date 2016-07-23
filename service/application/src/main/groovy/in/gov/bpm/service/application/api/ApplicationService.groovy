@@ -24,4 +24,7 @@ interface ApplicationService {
     Map<String, Object> getVariablesForTaskAndApplicationWithUserAuthorization(User user, Long applicationId, String taskId);
     Task completeTaskWithUserAuthorization(User user, Long applicationId, String taskId, Map<String, Object> variables);
     void checkFileBelongsToUser(User user, String file);
+    List<Form> getFormsForApplication(User user, Long applicationId);
+    List<Document> getDocumentsForApplication(User user, Long applicationId);
+    Application updateCompleteApplicationWithUserAuthorization(User user, Long applicationId);
 }

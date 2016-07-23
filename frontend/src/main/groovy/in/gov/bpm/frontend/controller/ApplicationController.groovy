@@ -90,6 +90,11 @@ class ApplicationController {
         return applicationService.completeApplicationWithUserAuthorization(userDetails.getUser(), request.applicationId);
     }
 
+    @RequestMapping(value = '/update', method = RequestMethod.POST)
+    Application update(@AuthenticationPrincipal UserDetails userDetails, @RequestBody CompleteApplicationRequest request) {
+        return applicationService.updateCompleteApplicationWithUserAuthorization(userDetails.getUser(), request.applicationId);
+    }
+
     @RequestMapping(value = '/{applicationId}/status', method = RequestMethod.GET)
     List<String> getStatus(@AuthenticationPrincipal UserDetails userDetails, @PathVariable('applicationId') Long applicationId) {
         return applicationService.getApplicationStatusWithUserAuthorization(userDetails.getUser(), applicationId);

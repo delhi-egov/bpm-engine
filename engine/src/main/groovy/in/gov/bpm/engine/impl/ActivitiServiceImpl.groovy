@@ -85,6 +85,14 @@ class ActivitiServiceImpl implements ActivitiService {
         return getApiTask(taskService.complete(taskId, variables));
     }
 
+    @Override
+    void setVariablesByBusinessKey(String key, Map<String, Object> variables) {
+        List<ApplicationProcess> processInstanceList = findProcessInstancesByBusinessKey(key);
+        if(processInstanceList != null && !processInstanceList.isEmpty()) {
+            runtimeService.setVariables(processInstanceList[0].processInstanceId, variables);
+        }
+    }
+
     private static Task getApiTask(org.activiti.engine.task.Task task) {
         Task apiTask = null;
         if(task != null) {

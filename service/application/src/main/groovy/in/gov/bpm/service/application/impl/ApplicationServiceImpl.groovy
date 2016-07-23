@@ -138,20 +138,7 @@ class ApplicationServiceImpl implements ApplicationService {
     Application completeApplicationWithUserAuthorization(User user, Long applicationId) {
         Application application = checkApplicationBelongsToUser(user, applicationId);
         checkIfPaymentIsDone(application);
-        List<Form> formList = formRepository.findByApplication_Id(applicationId);
-        List<Document> documentList = documentRepository.findByApplication_Id(applicationId);
-        Map<String, String> formMap = new HashMap<>();
-        Map<String, String> documentMap = new HashMap<>();
-        formList.each {
-            formMap.put(it.type, it.data);
-        }
-        documentList.each {
-            documentMap.put(it.type, it.path);
-        }
-        Map<String, Object> variables = new HashMap<>();
-        variables.put('user', objectMapper.convertValue(user, Map));
-        variables.put('forms', formMap);
-        variables.put('documents', documentMap);
+        Map<String, Object> variables = createVariableForApplication(applicationId);
         activitiService.startProcessInstanceByKey(application.type.bpmProcess, application.id.toString(), variables);
         return updateStageAndStatusWithUserAuthorization(user, applicationId, 'COMPLETE', 'PROGRESS');
     }
@@ -197,6 +184,28 @@ class ApplicationServiceImpl implements ApplicationService {
         if(document == null || document.getApplication().getUser().id != user.id) {
             throw new DocumentAuthorizationException();
         }
+    }
+
+    @Override
+    List<Form> getFormsForApplication(User user, Long applicationId) {
+        Application application = checkApplicationBelongsToUser(user, applicationId);
+        return formRepository.findByApplication_Id(applicationId);
+    }
+
+    @Override
+    List<Document> getDocumentsForApplication(User user, Long applicationId) {
+        Application application = checkApplicationBelongsToUser(user, applicationId);
+        return documentRepository.findByApplication_Id(applicationId);
+    }
+
+    @Override
+    Application updateCompleteApplicationWithUserAuthorization(User user, Long applicationId) {
+        Application application = checkApplicationBelongsToUser(user, applicationId);
+        checkIfApplicationInRightStage(application, 'COMPLETE');
+        checkIfPaymentIsDone(application);
+        Map<String, Object> variables = createVariableForApplication(applicationId);
+        activitiService.setVariablesByBusinessKey(applicationId.toString(), variables);
+        return application;
     }
 
 
@@ -274,6 +283,30 @@ class ApplicationServiceImpl implements ApplicationService {
         if(application.type.requiresPayment && !application.paymentDone) {
             throw new InvalidStateException("Payment not done for application");
         }
+    }
+
+    private static void checkIfApplicationInRightStage(Application application, String stage) {
+        if(application.submissionStage != stage) {
+            throw new InvalidStateException("This operation is not permitted in current stage of application");
+        }
+    }
+
+    private Map<String, Object> createVariableForApplication(Long applicationId) {
+        List<Form> formList = formRepository.findByApplication_Id(applicationId);
+        List<Document> documentList = documentRepository.findByApplication_Id(applicationId);
+        Map<String, String> formMap = new HashMap<>();
+        Map<String, String> documentMap = new HashMap<>();
+        formList.each {
+            formMap.put(it.type, it.data);
+        }
+        documentList.each {
+            documentMap.put(it.type, it.path);
+        }
+        Map<String, Object> variables = new HashMap<>();
+        variables.put('user', objectMapper.convertValue(user, Map));
+        variables.put('forms', formMap);
+        variables.put('documents', documentMap);
+        return variables;
     }
 
 }

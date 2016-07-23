@@ -16,4 +16,5 @@ interface ActivitiService {
     List<Task> getTasksForPortalAssigneeByBusinessKey(String key);
     Map<String, Object> getAllVariableForTask(String taskId);
     Task completeTask(String taskId, Map<String, Object> variables);
+    void setVariablesByBusinessKey(String key, Map<String, Object> variables);
 }
