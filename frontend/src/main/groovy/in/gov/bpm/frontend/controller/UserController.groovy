@@ -6,10 +6,12 @@ import in.gov.bpm.frontend.pojo.UserRegisterRequest
 import in.gov.bpm.frontend.pojo.VerifyOtpRequest
 import in.gov.bpm.service.user.api.UserService
 import in.gov.bpm.shared.exception.MissingPropertiesException
+import in.gov.bpm.shared.exception.OperationFailedException
 import org.apache.commons.lang3.StringUtils
 import org.codehaus.groovy.util.StringUtil
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.security.authentication.AuthenticationManager
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken
 import org.springframework.security.core.Authentication
 import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.security.web.authentication.logout.SecurityContextLogoutHandler
@@ -47,7 +49,10 @@ class UserController {
                 password: request.password,
                 email: request.email
         )
-        return userService.register(user);
+        user = userService.register(user);
+        user.password = null;
+        performLogin(request);
+        return user;
     }
 
     @RequestMapping(value = '/login', method = RequestMethod.POST)
@@ -73,5 +78,13 @@ class UserController {
     @RequestMapping(value = '/verifyOtp', method = RequestMethod.POST)
     Boolean verifyOtp(@AuthenticationPrincipal UserDetails userDetails, @RequestBody VerifyOtpRequest request) {
         return userService.verifyOtp(userDetails.getUser(), request.otp);
+    }
+
+    private void performLogin(UserRegisterRequest request) {
+        UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken(request.phone, request.password);
+        Authentication authentication = authenticationManager.authenticate(token);
+        if(!authentication.authenticated) {
+            throw new OperationFailedException("Could not login user after registration");
+        }
     }
 }
