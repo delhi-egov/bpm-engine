@@ -143,7 +143,10 @@ class UserServiceImpl implements UserService {
         return false;
     }
 
-    private static Integer generateRandomOtp() {
+    private Integer generateRandomOtp() {
+        if(devMode) {
+            return 123456;
+        }
         Random random = new Random();
         return 100000 + random.nextInt(900000);
     }
