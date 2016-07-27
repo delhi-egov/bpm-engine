@@ -10,9 +10,11 @@ import in.gov.bpm.shared.exception.OperationFailedException
 import org.apache.commons.lang3.StringUtils
 import org.codehaus.groovy.util.StringUtil
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.security.authentication.AuthenticationManager
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken
 import org.springframework.security.core.Authentication
+import org.springframework.security.core.context.SecurityContext
 import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.security.web.authentication.logout.SecurityContextLogoutHandler
 import org.springframework.security.web.bind.annotation.AuthenticationPrincipal
@@ -23,6 +25,7 @@ import org.springframework.web.bind.annotation.RestController
 
 import javax.servlet.http.HttpServletRequest
 import javax.servlet.http.HttpServletResponse
+import javax.servlet.http.HttpSession
 
 /**
  * Created by vaibhav on 20/7/16.
@@ -32,13 +35,14 @@ import javax.servlet.http.HttpServletResponse
 class UserController {
 
     @Autowired
+    @Qualifier(value = 'authenticationManager')
     AuthenticationManager authenticationManager;
 
     @Autowired
     UserService userService;
 
     @RequestMapping(value = '/register', method = RequestMethod.POST)
-    User register(@RequestBody UserRegisterRequest request) {
+    User register(HttpServletRequest servletRequest, @RequestBody UserRegisterRequest request) {
         if(request.phone == null || request.password == null || StringUtils.isAnyEmpty(request.phone.toString(), request.password)) {
             throw new MissingPropertiesException(['phone', 'password']);
         }
@@ -50,8 +54,9 @@ class UserController {
                 email: request.email
         )
         user = userService.register(user);
+        userService.generateOtp(user);
         user.password = null;
-        performLogin(request);
+        performLogin(servletRequest, request);
         return user;
     }
 
@@ -69,6 +74,11 @@ class UserController {
         return true;
     }
 
+    @RequestMapping(value = '/me', method = RequestMethod.GET)
+    User me(@AuthenticationPrincipal UserDetails userDetails) {
+        return userDetails.getUser();
+    }
+
     @RequestMapping(value = '/generateOtp', method = RequestMethod.GET)
     Boolean generateOtp(@AuthenticationPrincipal UserDetails userDetails) {
         userService.generateOtp(userDetails.getUser());
@@ -80,11 +90,17 @@ class UserController {
         return userService.verifyOtp(userDetails.getUser(), request.otp);
     }
 
-    private void performLogin(UserRegisterRequest request) {
+    private void performLogin(HttpServletRequest servletRequest, UserRegisterRequest request) {
         UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken(request.phone, request.password);
         Authentication authentication = authenticationManager.authenticate(token);
         if(!authentication.authenticated) {
             throw new OperationFailedException("Could not login user after registration");
         }
+        SecurityContext securityContext = SecurityContextHolder.getContext();
+        securityContext.setAuthentication(authentication);
+
+        // Create a new session and add the security context.
+        HttpSession session = servletRequest.getSession(true);
+        session.setAttribute("SPRING_SECURITY_CONTEXT", securityContext);
     }
 }

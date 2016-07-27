@@ -27,9 +27,10 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
         //auth.authenticationProvider(authenticationProvider());
     }
 
-    @Bean
-    public AuthenticationManager authenticationManager() throws Exception {
-        return super.authenticationManager();
+    @Bean(name="authenticationManager")
+    @Override
+    public AuthenticationManager authenticationManagerBean() throws Exception {
+        return super.authenticationManagerBean();
     }
 
     @Bean
@@ -44,6 +45,7 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
                 .csrf().disable()
                 .authorizeRequests()
                 .antMatchers('/user/register').permitAll()
+                .antMatchers('/user/login', '/user/logout', '/user/me').hasAnyRole("ADMIN", "USER", "UNVERIFIED")
                 .antMatchers("/swagger-ui.html").hasRole("ADMIN")
                 .antMatchers("/webjars/**").hasRole("ADMIN")
                 .antMatchers("/notification").hasRole("ADMIN")
@@ -51,7 +53,8 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
                 .antMatchers("/user/verifyOtp").hasAnyRole("ADMIN", "UNVERIFIED")
                 .antMatchers('/**').hasAnyRole("ADMIN", "USER")
                 .and()
-                .httpBasic().and().sessionManagement().sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED);
+                .httpBasic().and().sessionManagement().sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED).maximumSessions(1);
+
     }
 
 }

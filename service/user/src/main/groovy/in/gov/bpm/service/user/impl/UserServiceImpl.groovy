@@ -123,7 +123,7 @@ class UserServiceImpl implements UserService {
             sendOtpToUser(user, otp.otp);
         }
         else {
-            log.info("The opt is " + otp.otp);
+            log.info("The otp is " + otp.otp);
         }
     }
 
