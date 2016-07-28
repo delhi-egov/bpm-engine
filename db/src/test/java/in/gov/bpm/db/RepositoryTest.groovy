@@ -59,7 +59,7 @@ class RepositoryTest {
     @Test
     void testApplicationType() {
         ApplicationType applicationType = new ApplicationType(
-                name: 'process',
+                name: 'BuildingPlanNOC',
                 requiresPayment: false,
                 bpmProcess: 'process'
         );

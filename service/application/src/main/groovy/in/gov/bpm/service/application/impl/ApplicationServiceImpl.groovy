@@ -138,7 +138,7 @@ class ApplicationServiceImpl implements ApplicationService {
     Application completeApplicationWithUserAuthorization(User user, Long applicationId) {
         Application application = checkApplicationBelongsToUser(user, applicationId);
         checkIfPaymentIsDone(application);
-        Map<String, Object> variables = createVariableForApplication(applicationId);
+        Map<String, Object> variables = createVariableForApplication(user, applicationId);
         activitiService.startProcessInstanceByKey(application.type.bpmProcess, application.id.toString(), variables);
         return updateStageAndStatusWithUserAuthorization(user, applicationId, 'COMPLETE', 'PROGRESS');
     }
@@ -204,7 +204,7 @@ class ApplicationServiceImpl implements ApplicationService {
         checkIfApplicationInRightStage(application, 'COMPLETE');
         checkIfApplicationWithRightStatus(application, 'WAITING_ON_USER')
         checkIfPaymentIsDone(application);
-        Map<String, Object> variables = createVariableForApplication(applicationId);
+        Map<String, Object> variables = createVariableForApplication(user, applicationId);
         activitiService.setVariablesByBusinessKey(applicationId.toString(), variables);
         return application;
     }
@@ -298,7 +298,7 @@ class ApplicationServiceImpl implements ApplicationService {
         }
     }
 
-    private Map<String, Object> createVariableForApplication(Long applicationId) {
+    private Map<String, Object> createVariableForApplication(User user, Long applicationId) {
         List<Form> formList = formRepository.findByApplication_Id(applicationId);
         List<Document> documentList = documentRepository.findByApplication_Id(applicationId);
         Map<String, String> formMap = new HashMap<>();

@@ -99,6 +99,16 @@ class ApplicationController {
         return applicationService.getApplicationStatusWithUserAuthorization(userDetails.getUser(), applicationId);
     }
 
+    @RequestMapping(value = '/{applicationId}/forms', method = RequestMethod.GET)
+    List<Form> getForms(@AuthenticationPrincipal UserDetails userDetails, @PathVariable('applicationId') Long applicationId) {
+        return applicationService.getFormsForApplication(userDetails.getUser(), applicationId);
+    }
+
+    @RequestMapping(value = '/{applicationId}/documents', method = RequestMethod.GET)
+    List<Document> getDocuments(@AuthenticationPrincipal UserDetails userDetails, @PathVariable('applicationId') Long applicationId) {
+        return applicationService.getDocumentsForApplication(userDetails.getUser(), applicationId);
+    }
+
     @RequestMapping(value = '/{applicationId}/tasks', method = RequestMethod.GET)
     List<Task> getTasks(@AuthenticationPrincipal UserDetails userDetails, @PathVariable('applicationId') Long applicationId) {
         return applicationService.getTasksByApplicationForPortalWithUserAuthorization(userDetails.getUser(), applicationId);

@@ -14,6 +14,8 @@ import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.security.authentication.AuthenticationManager
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken
 import org.springframework.security.core.Authentication
+import org.springframework.security.core.GrantedAuthority
+import org.springframework.security.core.authority.SimpleGrantedAuthority
 import org.springframework.security.core.context.SecurityContext
 import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.security.web.authentication.logout.SecurityContextLogoutHandler
@@ -56,7 +58,7 @@ class UserController {
         user = userService.register(user);
         userService.generateOtp(user);
         user.password = null;
-        performLogin(servletRequest, request);
+        performLogin(servletRequest, request.phone, request.password);
         return user;
     }
 
@@ -86,18 +88,37 @@ class UserController {
     }
 
     @RequestMapping(value = '/verifyOtp', method = RequestMethod.POST)
-    Boolean verifyOtp(@AuthenticationPrincipal UserDetails userDetails, @RequestBody VerifyOtpRequest request) {
-        return userService.verifyOtp(userDetails.getUser(), request.otp);
+    Boolean verifyOtp(HttpServletRequest servletRequest, @AuthenticationPrincipal UserDetails userDetails, @RequestBody VerifyOtpRequest request) {
+        Boolean success = userService.verifyOtp(userDetails.getUser(), request.otp);
+        if(success) {
+            updateSession(servletRequest, userDetails.principal);
+        }
+        return success;
     }
 
-    private void performLogin(HttpServletRequest servletRequest, UserRegisterRequest request) {
-        UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken(request.phone, request.password);
+    private void performLogin(HttpServletRequest servletRequest, Long phone, String password) {
+        UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken(phone, password);
         Authentication authentication = authenticationManager.authenticate(token);
         if(!authentication.authenticated) {
             throw new OperationFailedException("Could not login user after registration");
         }
         SecurityContext securityContext = SecurityContextHolder.getContext();
         securityContext.setAuthentication(authentication);
+
+        // Create a new session and add the security context.
+        HttpSession session = servletRequest.getSession(true);
+        session.setAttribute("SPRING_SECURITY_CONTEXT", securityContext);
+    }
+
+    private void updateSession(HttpServletRequest servletRequest, Long phone) {
+        User user = userService.findByPhone(phone);
+        Collection<GrantedAuthority> grantedAuthorities = new ArrayList<GrantedAuthority>();
+        grantedAuthorities.add(new SimpleGrantedAuthority('ROLE_' + user.role));
+        UserDetails updateUserDetails = new UserDetails(user, grantedAuthorities);
+        updateUserDetails.setAuthenticated(true);
+
+        SecurityContext securityContext = SecurityContextHolder.getContext();
+        securityContext.setAuthentication(updateUserDetails);
 
         // Create a new session and add the security context.
         HttpSession session = servletRequest.getSession(true);

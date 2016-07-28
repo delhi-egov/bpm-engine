@@ -19,7 +19,7 @@ class ApplicationCollectionController {
     @Autowired
     ApplicationService applicationService;
 
-    @RequestMapping(value = '/', method = RequestMethod.GET)
+    @RequestMapping(value = '/*', method = RequestMethod.GET)
     List<Application> getApplications(@AuthenticationPrincipal UserDetails userDetails) {
         return applicationService.getApplicationsForUser(userDetails.getUser());
     }
