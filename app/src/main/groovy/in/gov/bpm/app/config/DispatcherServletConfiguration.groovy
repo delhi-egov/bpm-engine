@@ -8,6 +8,9 @@ import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.ComponentScan
 import org.springframework.context.annotation.Configuration
 import org.springframework.context.annotation.Import
+import org.springframework.context.annotation.PropertySource
+import org.springframework.context.annotation.PropertySources
+import org.springframework.context.support.PropertySourcesPlaceholderConfigurer
 import org.springframework.core.env.Environment
 import org.springframework.http.converter.HttpMessageConverter
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter
@@ -27,6 +30,7 @@ import in.gov.bpm.engine.config.ActivitiEngineConfiguration
 @Configuration
 @ComponentScan(["org.activiti.rest.exception", "org.activiti.rest.service.api", "in.gov.bpm.app.controller"])
 @Import(value = [ActivitiEngineConfiguration, SwaggerConfig])
+@PropertySources(@PropertySource("file:/egov.properties"))
 class DispatcherServletConfiguration extends WebMvcConfigurationSupport {
 
     @Autowired
@@ -37,6 +41,11 @@ class DispatcherServletConfiguration extends WebMvcConfigurationSupport {
 
     @Autowired
     private ActivitiService activitiService;
+
+    @Bean
+    public static PropertySourcesPlaceholderConfigurer propertyConfig() {
+        return new PropertySourcesPlaceholderConfigurer();
+    }
 
     @Bean
     public SessionLocaleResolver localeResolver() {

@@ -301,10 +301,10 @@ class ApplicationServiceImpl implements ApplicationService {
     private Map<String, Object> createVariableForApplication(User user, Long applicationId) {
         List<Form> formList = formRepository.findByApplication_Id(applicationId);
         List<Document> documentList = documentRepository.findByApplication_Id(applicationId);
-        Map<String, String> formMap = new HashMap<>();
+        Map<String, Map<String, Object>> formMap = new HashMap<>();
         Map<String, String> documentMap = new HashMap<>();
         formList.each {
-            formMap.put(it.type, it.data);
+            formMap.put(it.type, objectMapper.readValue(it.data, Map));
         }
         documentList.each {
             documentMap.put(it.type, it.path);
