@@ -49,11 +49,11 @@ The BPM engine would be used to execute all the processes deployed on it.
 
 1. Copy the generated frontend.war file from the 'frontend/target' directory to the webapps directory of your Tomcat installation
 2. Do a POST request on http://localhost:8080/frontend/user/register with following data
-        {
+        `{
             "firstName": "Admin",
             "lastName" : "Account",
             "phone" : 1234567890,
             "password" : "password"
-        }
+        }`
 3. Go to MySQL console, select 'egov' database by giving command 'use egov;' and give the following command 'update users set role="ADMIN";'
-4. Visit http://localhost:8080/bpm-engine/swagger-ui.html and login using 1234567890/password
+4. Visit http://localhost:8080/frontend/swagger-ui.html and login using 1234567890/password
