@@ -5,7 +5,7 @@ package in.gov.bpm.shared.pojo
  */
 class ApiErrorResponse {
 
-    String error;
+    String message;
     Integer code;
 
     public static class ApiErrorResponseCode {

@@ -15,7 +15,7 @@ class ApplicationExceptionHandlerAdvice {
     @ExceptionHandler(ApplicationException)
     @ResponseBody
     public ResponseEntity<ApiErrorResponse> handleException(ApplicationException e) {
-        ApiErrorResponse response = new ApiErrorResponse(error: e.customMessage, code: e.errorCode);
+        ApiErrorResponse response = new ApiErrorResponse(message: e.customMessage, code: e.errorCode);
         return new ResponseEntity<ApiErrorResponse>(response, e.httpStatus);
     }
 }
