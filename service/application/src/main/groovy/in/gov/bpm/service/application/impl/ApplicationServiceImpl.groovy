@@ -206,7 +206,7 @@ class ApplicationServiceImpl implements ApplicationService {
         checkIfPaymentIsDone(application);
         Map<String, Object> variables = createVariableForApplication(user, applicationId);
         activitiService.setVariablesByBusinessKey(applicationId.toString(), variables);
-        return application;
+        return updateStageAndStatusWithUserAuthorization(user, applicationId, 'COMPLETE', 'PROGRESS');
     }
 
 
