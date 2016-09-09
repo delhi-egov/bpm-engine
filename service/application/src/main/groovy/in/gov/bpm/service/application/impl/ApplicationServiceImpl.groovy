@@ -138,7 +138,7 @@ class ApplicationServiceImpl implements ApplicationService {
     Application completeApplicationWithUserAuthorization(User user, Long applicationId) {
         Application application = checkApplicationBelongsToUser(user, applicationId);
         checkIfPaymentIsDone(application);
-        Map<String, Object> variables = createVariableForApplication(user, applicationId);
+        Map<String, Object> variables = createVariableForApplication(user, application);
         activitiService.startProcessInstanceByKey(application.type.bpmProcess, application.id.toString(), variables);
         return updateStageAndStatusWithUserAuthorization(user, applicationId, 'COMPLETE', 'PROGRESS');
     }
@@ -204,7 +204,7 @@ class ApplicationServiceImpl implements ApplicationService {
         checkIfApplicationInRightStage(application, 'COMPLETE');
         checkIfApplicationWithRightStatus(application, 'WAITING_ON_USER')
         checkIfPaymentIsDone(application);
-        Map<String, Object> variables = createVariableForApplication(user, applicationId);
+        Map<String, Object> variables = createVariableForApplication(user, application);
         activitiService.setVariablesByBusinessKey(applicationId.toString(), variables);
         return updateStageAndStatusWithUserAuthorization(user, applicationId, 'COMPLETE', 'PROGRESS');
     }
@@ -298,22 +298,30 @@ class ApplicationServiceImpl implements ApplicationService {
         }
     }
 
-    private Map<String, Object> createVariableForApplication(User user, Long applicationId) {
-        List<Form> formList = formRepository.findByApplication_Id(applicationId);
-        List<Document> documentList = documentRepository.findByApplication_Id(applicationId);
+    private Map<String, Object> createVariableForApplication(User user, Application application) {
+        List<Form> formList = formRepository.findByApplication_Id(application.id);
+        List<Document> documentList = documentRepository.findByApplication_Id(application.id);
         Map<String, Map<String, Object>> formMap = new HashMap<>();
         Map<String, String> documentMap = new HashMap<>();
+        Map<String, Object> contextMap = new HashMap<>();
         formList.each {
             formMap.put(it.type, objectMapper.readValue(it.data, Map));
         }
         documentList.each {
             documentMap.put(it.type, it.path);
         }
+        prepareContextMap(contextMap, application);
         Map<String, Object> variables = new HashMap<>();
         variables.put('user', objectMapper.convertValue(user, Map));
         variables.put('forms', formMap);
         variables.put('documents', documentMap);
+        variables.put('context', contextMap);
         return variables;
+    }
+
+    private static void prepareContextMap(Map<String, Object> contextMap, Application application) {
+        contextMap.put('applicationId', application.id);
+        contextMap.put('applicationType', application.type.name);
     }
 
 }
