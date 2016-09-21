@@ -1,6 +1,7 @@
 package in.gov.bpm.engine.config
 
 import com.mysql.jdbc.Driver
+import in.gov.bpm.engine.impl.RemoteNotifierEventListener
 import in.gov.bpm.engine.impl.UserInfoInjector
 import org.activiti.engine.*
 import org.activiti.engine.impl.cfg.ProcessEngineConfigurationImpl
@@ -62,6 +63,18 @@ class ActivitiEngineConfiguration {
 
     @Value('${email.useTLS}')
     Boolean emailUseTLS;
+
+    @Value('${notification.enable}')
+    Boolean notificationEnable;
+
+    @Value('${notification.url}')
+    String notificationUrl;
+
+    @Value('${notification.username}')
+    String notificationUsername;
+
+    @Value('${notification.password}')
+    String notificationPassword;
 
 
     @Bean(name = "processEngineDataSource")
@@ -132,6 +145,10 @@ class ActivitiEngineConfiguration {
         return rest;
     }
 
+    public RemoteNotifierEventListener remoteNotifierEventListener(RuntimeService runtimeService) {
+        return new RemoteNotifierEventListener(notificationUrl, notificationUsername, notificationPassword, restTemplate(), runtimeService);
+    }
+
     /*@Bean
     public UserInfoInjector userInfoInjector() {
         return new UserInfoInjector();
@@ -144,6 +161,9 @@ class ActivitiEngineConfiguration {
 
     @Bean
     public RuntimeService runtimeService() {
+        if(notificationEnable) {
+            processEngine().getRuntimeService().addEventListener(remoteNotifierEventListener(processEngine().getRuntimeService()));
+        }
         return processEngine().getRuntimeService();
     }
 
