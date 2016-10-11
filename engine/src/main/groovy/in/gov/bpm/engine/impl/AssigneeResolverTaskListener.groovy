@@ -24,6 +24,7 @@ class AssigneeResolverTaskListener implements TaskListener {
         String assignee = delegateTask.getAssignee();
         List<String> keys = identityService.getUserInfoKeys(assignee);
         Map<String, Object> userDetails = new HashMap<>();
+        userDetails.put("id", assignee);
         keys.each {
             userDetails[it] = identityService.getUserInfo(assignee, it);
         }
